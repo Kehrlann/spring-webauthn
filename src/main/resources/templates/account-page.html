@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Useful App</title>
+</head>
+<body>
+<h1>Account page</h1>
+<p>We will see your account page later.</p>
+<button id="register-webauthn">Register WebAuthN</button>
+<a href="/logout">logout</a>
+</body>
+<script th:inline="javascript">
+    // TODO: note, these keys should be generated at sign-in time, not page build time.
+    const publicKeyCredentialCreationOptions = {
+        challenge: Uint8Array.from(
+            [[${challenge}]], c => c.charCodeAt(0)),
+        rp: {
+            name: "WebAuthN By Kehrlann",
+            // TODO: clarify
+            // id: "webauthn.garnier.wf",
+            id: "localhost"
+        },
+        user: {
+            id: Uint8Array.from(
+                [[${username}]], c => c.charCodeAt(0)), // TODO: a "real" ID
+            displayName: [[${username}]],
+            name: [[${username}]]
+        },
+        credentialNickname: "whynot",
+        pubKeyCredParams: [{alg: -7, type: "public-key"}],
+        // Cross-platform: Yubikey etc
+        // Platform: TouchID, Windows Hello, etc
+        // authenticatorSelection: {
+        //     authenticatorAttachment: "cross-platform",
+        // },
+        timeout: 60000,
+        attestation: "direct",
+        authenticatorSelection: {
+            requireResidentKey: false,
+            userVerification: "discouraged"
+        },
+    };
+
+    document.getElementById("register-webauthn").addEventListener("click", async () => {
+const credentials = await navigator.credentials.create({
+    publicKey: publicKeyCredentialCreationOptions
+});
+fetch("/register",
+    {
+        method: "POST",
+        body: JSON.stringify(credentials),
+        credentials: "same-origin",
+        headers: {
+            [[${_csrf.headerName}]]: [[${_csrf.token}]],
+            "Content-Type": "application/json;charset=utf-8"
+        }
+    })
+            .then(r => r.json())
+            .then(r => console.log(r))
+            .catch(err => console.error(err))
+            .finally(() => console.log("yep, done"))
+
+    })
+</script>
+</html>

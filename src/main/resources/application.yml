@@ -1,0 +1,9 @@
+#logging:
+#  level:
+#    org.springframework.security: TRACE
+spring:
+  sql:
+    init:
+      mode: always
+      continue-on-error: false
+      schema-locations: classpath*:db/schema.sql

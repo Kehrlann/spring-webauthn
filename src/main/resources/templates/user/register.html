@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🐶 WAN - Register user</title>
+</head>
+<body>
+<h1>Register a new user</h1>
+<form action="/user/register" method="POST">
+    <label for="username">Name:</label><br>
+    <input type="text" name="username" id="username" /><br>
+    <label for="email">Email:</label><br>
+    <input type="text" name="email" id="email" /><br>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <button type="submit">Register</button>
+</form>
+</body>
+</html>
