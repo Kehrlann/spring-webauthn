@@ -7,10 +7,17 @@ import org.springframework.stereotype.Component;
 @Component
 class MacOsMailNotifier {
 
-	public void notify(String message, String link) {
+	public void notify(String title, String message, String link) {
 		try {
-			Runtime.getRuntime()
-				.exec(new String[] { "terminal-notifier", "-message", message, "-title", "Java", "-open", link });
+			Runtime.getRuntime().exec(new String[] {
+					//@formatter:off
+					"terminal-notifier",
+					"-message", message,
+					"-title", title,
+					"-open", link,
+					"-sound", "bell"
+					//@formatter:on
+			});
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);

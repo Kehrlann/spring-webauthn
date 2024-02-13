@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,8 +49,8 @@ class AppController {
 	}
 
 	@GetMapping("/account")
-	public String accountPage(Authentication authentication, Model model) {
-		model.addAttribute("username", authentication.getName());
+	public String accountPage(@AuthenticationPrincipal User user, Model model) {
+		model.addAttribute("username", user.getUsername());
 		model.addAttribute("challenge", UUID.randomUUID().toString());
 		return "account-page";
 	}

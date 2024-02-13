@@ -10,45 +10,48 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
+
 @Entity
 class LoginCode {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private User user;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
-    private LocalDateTime expirationTime;
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	private User user;
 
-    public LoginCode() {
-    }
+	private LocalDateTime expirationTime;
 
-    public LoginCode(User user) {
-        this.user = user;
+	public LoginCode() {
 	}
 
-    public UUID getId() {
-        return id;
-    }
+	public LoginCode(User user) {
+		this.user = user;
+	}
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+	public UUID getId() {
+		return id;
+	}
 
-    public User getUser() {
-        return user;
-    }
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+	public User getUser() {
+		return user;
+	}
 
-    public LocalDateTime getExpirationTime() {
-        return expirationTime;
-    }
+	public void setUser(User user) {
+		this.user = user;
+	}
 
-    public void setExpirationTime(LocalDateTime expirationTime) {
-        this.expirationTime = expirationTime;
-    }
+	public LocalDateTime getExpirationTime() {
+		return expirationTime;
+	}
+
+	public void setExpirationTime(LocalDateTime expirationTime) {
+		this.expirationTime = expirationTime;
+	}
+
 }
