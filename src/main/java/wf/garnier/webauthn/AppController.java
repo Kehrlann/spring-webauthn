@@ -34,7 +34,9 @@ import org.springframework.web.bind.support.SessionStatus;
 import wf.garnier.webauthn.user.User;
 import wf.garnier.webauthn.user.UserAuthenticationToken;
 import wf.garnier.webauthn.user.UserRepository;
+import wf.garnier.webauthn.user.webauthn.CredentialsRegistration;
 import wf.garnier.webauthn.user.webauthn.CredentialsRepository;
+import wf.garnier.webauthn.user.webauthn.CredentialsVerification;
 import wf.garnier.webauthn.user.webauthn.UserAuthenticator;
 import wf.garnier.webauthn.user.webauthn.WebAuthNAuthenticatorRepository;
 
@@ -73,8 +75,8 @@ class AppController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<CredentialsRepository.Credentials> register(
-			@RequestBody CredentialsRepository.Credentials credentials, @SessionAttribute("challenge") String challenge,
+	public ResponseEntity<CredentialsRegistration> register(
+			@RequestBody CredentialsRegistration credentials, @SessionAttribute("challenge") String challenge,
 			@AuthenticationPrincipal User user, SessionStatus sessionStatus) throws IOException {
 		authenticatorRepository.save(credentials.id(), new UserAuthenticator(credentials,
 				Base64.getUrlEncoder().encodeToString(challenge.getBytes()), user.getId()));
@@ -83,8 +85,8 @@ class AppController {
 	}
 
 	@PostMapping("/webauthn-login")
-	public String login(@RequestBody CredentialsRepository.CredentialsSign signedResponse, SessionStatus sessionStatus,
-			@SessionAttribute("challenge") String challenge, HttpServletRequest request, HttpServletResponse response) {
+	public String login(@RequestBody CredentialsVerification signedResponse, SessionStatus sessionStatus,
+						@SessionAttribute("challenge") String challenge, HttpServletRequest request, HttpServletResponse response) {
 
 		// Client properties
 		var credentialId = signedResponse.id().getBytes();
@@ -134,7 +136,7 @@ class AppController {
 
 	@GetMapping(value = "/show-me", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public CredentialsRepository.Credentials showMe() throws IOException {
+	public CredentialsRegistration showMe() throws IOException {
 		return credentialsRepository.loadCredentials();
 	}
 

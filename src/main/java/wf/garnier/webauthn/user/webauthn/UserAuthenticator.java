@@ -27,7 +27,7 @@ public class UserAuthenticator implements Authenticator {
 
 	private final UUID userId;
 
-	public UserAuthenticator(CredentialsRepository.Credentials credentials, String challenge, UUID userId) {
+	public UserAuthenticator(CredentialsRegistration credentials, String challenge, UUID userId) {
 		this.userId = userId;
 		byte[] attestationObject = Base64.getUrlDecoder().decode(credentials.response().attestationObject());
 		byte[] clientDataJSON = Base64.getUrlDecoder().decode(credentials.response().clientDataJSON());
