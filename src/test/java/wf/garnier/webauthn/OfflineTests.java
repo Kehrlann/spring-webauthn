@@ -106,9 +106,6 @@ class OfflineTests {
 
 		// Client properties
 		byte[] credentialId = credsResponse.id().getBytes() /* set credentialId */;
-		byte[] userHandle = credsResponse.response()
-			.userHandle()
-			.getBytes() /* set userHandle */;
 		byte[] authenticatorData = Base64.getUrlDecoder()
 			.decode(credsResponse.response()
 				.authenticatorData()) /* set authenticatorData */;

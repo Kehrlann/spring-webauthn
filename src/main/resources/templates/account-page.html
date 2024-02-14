@@ -7,8 +7,14 @@
 <body>
 <h1>Account page - <span th:text="${username}"></span></h1>
 <p>We will see your account page later.</p>
-<button id="register-webauthn">Register WebAuthN</button>
 <a href="/logout">logout</a>
+<hr>
+<h2>Existing Passkeys</h2>
+<ul>
+    <li th:each="authenticator: ${authenticators}" th:text="${authenticator}"></li>
+</ul>
+<h2>Register new passkey</h2>
+<button id="register-webauthn">Register new Passkey</button>
 </body>
 <script th:inline="javascript">
     // TODO: note, these keys should be generated at sign-in time, not page build time.
@@ -43,19 +49,19 @@
     };
 
     document.getElementById("register-webauthn").addEventListener("click", async () => {
-const credentials = await navigator.credentials.create({
-    publicKey: publicKeyCredentialCreationOptions
-});
-fetch("/register",
-    {
-        method: "POST",
-        body: JSON.stringify(credentials),
-        credentials: "same-origin",
-        headers: {
-            [[${_csrf.headerName}]]: [[${_csrf.token}]],
-            "Content-Type": "application/json;charset=utf-8"
-        }
-    })
+        const credentials = await navigator.credentials.create({
+            publicKey: publicKeyCredentialCreationOptions
+        });
+        fetch("/register",
+            {
+                method: "POST",
+                body: JSON.stringify(credentials),
+                credentials: "same-origin",
+                headers: {
+                    [[${_csrf.headerName}]]: [[${_csrf.token}]],
+                    "Content-Type": "application/json;charset=utf-8"
+                }
+            })
             .then(r => r.json())
             .then(r => console.log(r))
             .catch(err => console.error(err))

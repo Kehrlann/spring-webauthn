@@ -8,15 +8,15 @@ import org.springframework.util.MultiValueMap;
 @Component
 public class WebAuthNAuthenticatorRepository {
 
-	private final MultiValueMap<String, UserAuthenticator> authenticators = new LinkedMultiValueMap<>();
+	private final MultiValueMap<String, UserAuthenticatorLegacy> authenticators = new LinkedMultiValueMap<>();
 
-	public void save(String credentialId, UserAuthenticator authenticator) {
+	public void save(String credentialId, UserAuthenticatorLegacy authenticator) {
 		System.out.println("💾💾💾💾💾💾💾💾💾 " + credentialId);
 		authenticators.add(credentialId, authenticator);
 	}
 
 	@Nullable
-	public UserAuthenticator load(String credentialId) {
+	public UserAuthenticatorLegacy load(String credentialId) {
 		System.out.println("💿💿💿💿💿💿💿💿💿 " + credentialId);
 		return authenticators.getFirst(credentialId);
 	}

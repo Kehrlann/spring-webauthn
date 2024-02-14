@@ -1,94 +1,91 @@
 package wf.garnier.webauthn.user.webauthn;
 
-import java.util.Base64;
 import java.util.UUID;
 
-import com.webauthn4j.WebAuthnManager;
-import com.webauthn4j.authenticator.Authenticator;
-import com.webauthn4j.authenticator.AuthenticatorImpl;
-import com.webauthn4j.converter.exception.DataConversionException;
-import com.webauthn4j.data.RegistrationData;
-import com.webauthn4j.data.RegistrationParameters;
-import com.webauthn4j.data.RegistrationRequest;
-import com.webauthn4j.data.attestation.authenticator.AttestedCredentialData;
-import com.webauthn4j.data.attestation.statement.AttestationStatement;
-import com.webauthn4j.data.client.Origin;
-import com.webauthn4j.data.client.challenge.DefaultChallenge;
-import com.webauthn4j.data.extension.authenticator.AuthenticationExtensionsAuthenticatorOutputs;
-import com.webauthn4j.data.extension.authenticator.RegistrationExtensionAuthenticatorOutput;
-import com.webauthn4j.server.ServerProperty;
-import com.webauthn4j.validator.exception.ValidationException;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import wf.garnier.webauthn.user.User;
 
-public class UserAuthenticator implements Authenticator {
+@Entity
+@Table(name = "authenticator")
+public class UserAuthenticator {
 
-	private final Authenticator authenticator;
+	@Id
+	private String id;
 
-	private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	private User user;
 
-	private final UUID userId;
+	private String credentialsName; // unique per user, meh
 
-	public UserAuthenticator(CredentialsRegistration credentials, String challenge, UUID userId) {
-		this.userId = userId;
-		byte[] attestationObject = Base64.getUrlDecoder().decode(credentials.response().attestationObject());
-		byte[] clientDataJSON = Base64.getUrlDecoder().decode(credentials.response().clientDataJSON());
-		Origin origin = new Origin("http://localhost:8080");
-		String rpId = "localhost";
-		ServerProperty serverProperty = new ServerProperty(origin, rpId, new DefaultChallenge(challenge), null);
-		RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON, null,
-				null);
-		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, false, true);
-		RegistrationData registrationData;
-		try {
-			registrationData = webAuthnManager.parse(registrationRequest);
-		}
-		catch (DataConversionException e) {
-			// If you would like to handle WebAuthn data structure parse error, please
-			// catch DataConversionException
-			throw e;
-		}
-		try {
-			webAuthnManager.validate(registrationData, registrationParameters);
-		}
-		catch (ValidationException e) {
-			// If you would like to handle WebAuthn data validation error, please catch
-			// ValidationException
-			throw e;
-		}
-		authenticator = new AuthenticatorImpl(
-				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-				registrationData.getAttestationObject().getAttestationStatement(),
-				registrationData.getAttestationObject().getAuthenticatorData().getSignCount()
-		);
+	private byte[] attestedCredentialsData;
 
+	private byte[] attestationStatement;
+
+	private long counter;
+
+	public UserAuthenticator() {
 	}
 
-	@Override
-	public AttestedCredentialData getAttestedCredentialData() {
-		return authenticator.getAttestedCredentialData();
+	public UserAuthenticator(String id, User user, String credentialsName, byte[] attestedCredentialsData,
+			byte[] attestationStatement, long counter) {
+		this.id = id;
+		this.user = user;
+		this.credentialsName = credentialsName;
+		this.attestedCredentialsData = attestedCredentialsData;
+		this.attestationStatement = attestationStatement;
+		this.counter = counter;
 	}
 
-	@Override
-	public AttestationStatement getAttestationStatement() {
-		return authenticator.getAttestationStatement();
+	public void setId(String id) {
+		this.id = id;
 	}
 
-	@Override
+	public String getId() {
+		return id;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public String getCredentialsName() {
+		return credentialsName;
+	}
+
+	public void setCredentialsName(String credentialsName) {
+		this.credentialsName = credentialsName;
+	}
+
+	public byte[] getAttestedCredentialsData() {
+		return attestedCredentialsData;
+	}
+
+	public void setAttestedCredentialsData(byte[] attestedCredentialsData) {
+		this.attestedCredentialsData = attestedCredentialsData;
+	}
+
+	public byte[] getAttestationStatement() {
+		return attestationStatement;
+	}
+
+	public void setAttestationStatement(byte[] attestationStatement) {
+		this.attestationStatement = attestationStatement;
+	}
+
 	public long getCounter() {
-		return authenticator.getCounter();
+		return counter;
 	}
 
-	@Override
-	public void setCounter(long value) {
-		authenticator.setCounter(value);
-	}
-
-	@Override
-	public AuthenticationExtensionsAuthenticatorOutputs<RegistrationExtensionAuthenticatorOutput> getAuthenticatorExtensions() {
-		return authenticator.getAuthenticatorExtensions();
-	}
-
-	public UUID getUserId() {
-		return userId;
+	public void setCounter(long counter) {
+		this.counter = counter;
 	}
 
 }
