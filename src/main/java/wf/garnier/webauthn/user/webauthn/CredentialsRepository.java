@@ -1,4 +1,4 @@
-package wf.garnier.webauthn;
+package wf.garnier.webauthn.user.webauthn;
 
 import java.io.File;
 import java.io.IOException;

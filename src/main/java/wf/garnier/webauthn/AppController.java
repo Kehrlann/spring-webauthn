@@ -1,27 +1,27 @@
 package wf.garnier.webauthn;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.Set;
 import java.util.UUID;
 
 import com.webauthn4j.WebAuthnManager;
-import com.webauthn4j.authenticator.Authenticator;
-import com.webauthn4j.authenticator.AuthenticatorImpl;
 import com.webauthn4j.converter.exception.DataConversionException;
-import com.webauthn4j.data.RegistrationData;
-import com.webauthn4j.data.RegistrationParameters;
-import com.webauthn4j.data.RegistrationRequest;
+import com.webauthn4j.data.AuthenticationData;
+import com.webauthn4j.data.AuthenticationParameters;
+import com.webauthn4j.data.AuthenticationRequest;
 import com.webauthn4j.data.client.Origin;
-import com.webauthn4j.data.client.challenge.Challenge;
+import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.validator.exception.ValidationException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +31,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import wf.garnier.webauthn.user.User;
+import wf.garnier.webauthn.user.UserAuthenticationToken;
+import wf.garnier.webauthn.user.UserRepository;
+import wf.garnier.webauthn.user.webauthn.CredentialsRepository;
+import wf.garnier.webauthn.user.webauthn.UserAuthenticator;
+import wf.garnier.webauthn.user.webauthn.WebAuthNAuthenticatorRepository;
 
 @Controller
 @SessionAttributes("challenge")
@@ -38,8 +44,19 @@ class AppController {
 
 	private final CredentialsRepository credentialsRepository;
 
-	public AppController(CredentialsRepository credentialsRepository) {
+	private final WebAuthNAuthenticatorRepository authenticatorRepository;
+
+	private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
+
+	private final UserRepository userRepository;
+
+	private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+
+	public AppController(CredentialsRepository credentialsRepository,
+			WebAuthNAuthenticatorRepository authenticatorRepository, UserRepository userRepository) {
 		this.credentialsRepository = credentialsRepository;
+		this.authenticatorRepository = authenticatorRepository;
+		this.userRepository = userRepository;
 	}
 
 	@GetMapping
@@ -57,54 +74,45 @@ class AppController {
 
 	@PostMapping("/register")
 	public ResponseEntity<CredentialsRepository.Credentials> register(
-			@RequestBody CredentialsRepository.Credentials credentials, SessionStatus sessionStatus)
-			throws IOException {
-		// TODO: verify credentials
-		credentialsRepository.saveCredentials(credentials);
+			@RequestBody CredentialsRepository.Credentials credentials, @SessionAttribute("challenge") String challenge,
+			@AuthenticationPrincipal User user, SessionStatus sessionStatus) throws IOException {
+		authenticatorRepository.save(credentials.id(), new UserAuthenticator(credentials,
+				Base64.getUrlEncoder().encodeToString(challenge.getBytes()), user.getId()));
 		sessionStatus.setComplete();
 		return new ResponseEntity<>(credentials, HttpStatus.CREATED);
 	}
 
 	@PostMapping("/webauthn-login")
-	public ResponseEntity<CredentialsRepository.CredentialsSign> login(
-			@RequestBody CredentialsRepository.CredentialsSign signedResponse, SessionStatus sessionStatus,
-			@SessionAttribute("challenge") String challenge) throws IOException, NoSuchAlgorithmException {
-		credentialsRepository.saveResponse(signedResponse);
+	public String login(@RequestBody CredentialsRepository.CredentialsSign signedResponse, SessionStatus sessionStatus,
+			@SessionAttribute("challenge") String challenge, HttpServletRequest request, HttpServletResponse response) {
 
-		var webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
 		// Client properties
-		byte[] attestationObject = null /* set attestationObject */;
-		byte[] clientDataJSON = null /* set clientDataJSON */;
-		String clientExtensionJSON = null; /* set clientExtensionJSON */
-		Set<String> transports = null /* set transports */;
+		var credentialId = signedResponse.id().getBytes();
+		var clientDataJSON = Base64.getUrlDecoder().decode(signedResponse.response().clientDataJSON());
+		var authenticatorData = Base64.getUrlDecoder().decode(signedResponse.response().authenticatorData());
+		var signature = Base64.getUrlDecoder().decode(signedResponse.response().signature());
 
-		// Server properties
-		String rpId = null /* set rpId */;
-		Origin origin = null;
-		Challenge c = null /* set c */;
-		byte[] tokenBindingId = null /* set tokenBindingId */;
-		ServerProperty serverProperty = new ServerProperty(origin, rpId, c, tokenBindingId);
+		Origin origin = new Origin("http://localhost:8080");
+		String rpId = "localhost" /* set rpId */;
 
-		// expectations
-		boolean userVerificationRequired = false;
-		boolean userPresenceRequired = true;
+		ServerProperty serverProperty = new ServerProperty(origin, rpId,
+				new DefaultChallenge(Base64.getUrlEncoder().encodeToString(challenge.getBytes())), null);
+		var authenticator = authenticatorRepository.load(signedResponse.id());
 
-		RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON,
-				clientExtensionJSON, transports);
-		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty,
-				userVerificationRequired, userPresenceRequired);
-
-		RegistrationData registrationData;
+		AuthenticationRequest authenticationRequest = new AuthenticationRequest(credentialId, authenticatorData,
+				clientDataJSON, signature);
+		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator,
+				null, false, false);
+		AuthenticationData authenticationData;
 		try {
-			registrationData = webAuthnManager.parse(registrationRequest);
+			authenticationData = webAuthnManager.parse(authenticationRequest);
+			var thing = webAuthnManager.validate(authenticationData, authenticationParameters);
+			System.out.println(thing);
 		}
 		catch (DataConversionException e) {
 			// If you would like to handle WebAuthn data structure parse error, please
 			// catch DataConversionException
 			throw e;
-		}
-		try {
-			webAuthnManager.validate(registrationData, registrationParameters);
 		}
 		catch (ValidationException e) {
 			// If you would like to handle WebAuthn data validation error, please catch
@@ -112,65 +120,22 @@ class AppController {
 			throw e;
 		}
 
-		// please persist Authenticator object, which will be used in the authentication
-		// process.
-		Authenticator authenticator = new AuthenticatorImpl( // You may create your own
-																// Authenticator
-																// implementation to save
-																// friendly authenticator
-																// name
-				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-				registrationData.getAttestationObject().getAttestationStatement(),
-				registrationData.getAttestationObject().getAuthenticatorData().getSignCount());
-		var storedCredentials = credentialsRepository.loadCredentials();
+		var user = userRepository.findById(authenticator.getUserId());
+		var auth = new UserAuthenticationToken(user.get()); // #yolo
 
-		var decodeFromBytes = Base64.getUrlDecoder().decode(storedCredentials.response().attestationObject());
-		System.out.println(signedResponse);
+		var newContext = SecurityContextHolder.createEmptyContext();
+		newContext.setAuthentication(auth);
+		SecurityContextHolder.setContext(newContext);
+		securityContextRepository.saveContext(newContext, request, response);
+
 		sessionStatus.setComplete();
-		return new ResponseEntity<>(signedResponse, HttpStatus.OK);
+		return "redirect:/account";
 	}
 
 	@GetMapping(value = "/show-me", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public CredentialsRepository.Credentials showMe() throws IOException {
 		return credentialsRepository.loadCredentials();
-	}
-
-	public static class CBORThingy {
-
-		public String fmt;
-
-		public Object attStmt;
-
-		public byte[] authData;
-
-		public CBORThingy() {
-		}
-
-		public String getFmt() {
-			return fmt;
-		}
-
-		public void setFmt(String fmt) {
-			this.fmt = fmt;
-		}
-
-		public Object getAttStmt() {
-			return attStmt;
-		}
-
-		public void setAttStmt(Object attStmt) {
-			this.attStmt = attStmt;
-		}
-
-		public byte[] getAuthData() {
-			return authData;
-		}
-
-		public void setAuthData(byte[] authData) {
-			this.authData = authData;
-		}
-
 	}
 
 }

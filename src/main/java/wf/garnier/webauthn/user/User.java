@@ -1,4 +1,4 @@
-package wf.garnier.webauthn;
+package wf.garnier.webauthn.user;
 
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "app_user")
-class User {
+public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

@@ -4,9 +4,12 @@ import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 
 @Configuration
+@EnableWebSecurity
 class SecurityConfiguration {
 
 	@Bean
@@ -20,7 +23,11 @@ class SecurityConfiguration {
 			authorize.requestMatchers("/login-mail").permitAll();
 			authorize.requestMatchers("/favicon.ico").permitAll();
 			authorize.anyRequest().authenticated();
-		}).logout(logout -> logout.logoutSuccessUrl("/")).build();
+		})
+			.addFilter(new DefaultLogoutPageGeneratingFilter())
+			.csrf(csrf -> csrf.ignoringRequestMatchers("/logout"))
+			.logout(logout -> logout.logoutSuccessUrl("/"))
+			.build();
 	}
 
 }

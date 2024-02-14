@@ -2,7 +2,6 @@ package wf.garnier.webauthn;
 
 import java.io.IOException;
 import java.util.Base64;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import wf.garnier.webauthn.user.webauthn.CredentialsRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -122,18 +122,12 @@ class OfflineTests {
 		String rpId = "localhost" /* set rpId */;
 		Challenge challenge = new DefaultChallenge(
 				clientDataJson.get("challenge")) /* set challenge */;
-		byte[] tokenBindingId = null /* set tokenBindingId */;
-		ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+		ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, null);
 
-		// expectations
-		List<byte[]> allowCredentials = null;
-		boolean userVerificationRequired = false;
-		boolean userPresenceRequired = false;
-
-		AuthenticationRequest authenticationRequest = new AuthenticationRequest(credentialId, userHandle,
-				authenticatorData, clientDataJSON, clientExtensionJSON, signature);
+		AuthenticationRequest authenticationRequest = new AuthenticationRequest(credentialId, authenticatorData,
+				clientDataJSON, signature);
 		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator,
-				allowCredentials, userVerificationRequired, userPresenceRequired);
+				null, false, false);
 
 		AuthenticationData authenticationData;
 		try {
@@ -147,6 +141,8 @@ class OfflineTests {
 		}
 		try {
 			var thing = webAuthnManager.validate(authenticationData, authenticationParameters);
+
+			// TODO: sign multiple times :arghl:
 			assertThat(thing).isNotNull();
 		}
 		catch (ValidationException e) {

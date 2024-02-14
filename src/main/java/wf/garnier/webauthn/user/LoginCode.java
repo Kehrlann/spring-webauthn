@@ -1,4 +1,4 @@
-package wf.garnier.webauthn;
+package wf.garnier.webauthn.user;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -9,10 +9,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import wf.garnier.webauthn.user.User;
 
 
 @Entity
-class LoginCode {
+public class LoginCode {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

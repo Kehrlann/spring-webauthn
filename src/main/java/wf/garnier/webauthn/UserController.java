@@ -14,9 +14,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
+import wf.garnier.webauthn.user.LoginCode;
+import wf.garnier.webauthn.user.LoginCodeRepository;
+import wf.garnier.webauthn.user.User;
+import wf.garnier.webauthn.user.UserAuthenticationToken;
+import wf.garnier.webauthn.user.UserRepository;
 
 @Controller
 class UserController {
@@ -48,12 +52,6 @@ class UserController {
 		return "redirect:/";
 	}
 
-	@GetMapping("/user")
-	@ResponseBody
-	public Iterable<User> users() {
-		return userRepository.findAll();
-	}
-
 	@PostMapping("/login-mail")
 	public String requestCode(@RequestParam String email, RedirectAttributes redirectAttributes,
 			HttpServletRequest request) {
@@ -65,7 +63,6 @@ class UserController {
 				.queryParam("code", newCode.getId())
 				.toUriString();
 			mailNotifier.notify("You got Mail", "Login to 🐶 WAN demo. Follow this link to log in: " + url, url);
-			System.out.println("🔗🔗🔗🔗🔗🔗🔗🔗🔗🔗 " + url);
 			redirectAttributes.addFlashAttribute("alert",
 					"You have requested a login code for [%s]. Check your inbox!".formatted(email));
 		}
@@ -84,7 +81,7 @@ class UserController {
 		var loginCode = loginCodeRepository.findById(UUID.fromString(code));
 		if (loginCode.isPresent()) {
 			var user = loginCode.get().getUser();
-			var auth = new AppAuthenticationToken(user);
+			var auth = new UserAuthenticationToken(user);
 
 			var newContext = SecurityContextHolder.createEmptyContext();
 			newContext.setAuthentication(auth);
