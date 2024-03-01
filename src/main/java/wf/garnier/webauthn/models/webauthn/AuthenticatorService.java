@@ -18,10 +18,12 @@ import com.webauthn4j.data.client.Origin;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.validator.exception.ValidationException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 import wf.garnier.webauthn.models.User;
 
 @Component
@@ -31,19 +33,14 @@ public class AuthenticatorService {
 
 	private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
 
-	// TODO from properties
-	// Note that origin could be loaded by the frontend
-	private final Origin origin = new Origin("http://localhost:8080");
-
-	// TODO from properties
-	// Note that origin
-	private final String rpId = "localhost";
+	private final HttpServletRequest request;
 
 	AttestedCredentialDataConverter attestedCredentialDataConverter = new AttestedCredentialDataConverter(
 			new ObjectConverter());
 
-	public AuthenticatorService(UserAuthenticatorRepository repository) {
+	public AuthenticatorService(UserAuthenticatorRepository repository, HttpServletRequest request) {
 		this.repository = repository;
+		this.request = request;
 	}
 
 	public void saveCredentials(CredentialsRegistration registration, String challenge, User user) {
@@ -51,7 +48,8 @@ public class AuthenticatorService {
 		var clientDataJSON = Base64.getUrlDecoder().decode(registration.response().clientDataJSON());
 		var base64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
 
-		ServerProperty serverProperty = new ServerProperty(origin, rpId, new DefaultChallenge(base64Challenge), null);
+		ServerProperty serverProperty = new ServerProperty(getOrigin(), getRpId(),
+				new DefaultChallenge(base64Challenge), null);
 		RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON, null,
 				null);
 		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, false, true);
@@ -94,7 +92,7 @@ public class AuthenticatorService {
 				new NoneAttestationStatement(), userAuthenticator.getCounter());
 
 		var b64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
-		ServerProperty serverProperty = new ServerProperty(this.origin, this.rpId, new DefaultChallenge(b64Challenge),
+		ServerProperty serverProperty = new ServerProperty(getOrigin(), getRpId(), new DefaultChallenge(b64Challenge),
 				null);
 
 		var clientDataJSON = Base64.getUrlDecoder().decode(verification.response().clientDataJSON());
@@ -130,6 +128,17 @@ public class AuthenticatorService {
 	@Transactional
 	public boolean deleteCredential(User user, String credentialId) {
 		return repository.deleteByIdAndUser(credentialId, user) > 0;
+	}
+
+	private String getRpId() {
+		return UriComponentsBuilder.fromHttpUrl(request.getRequestURL().toString()).build().getHost();
+	}
+
+	private Origin getOrigin() {
+		var origin = UriComponentsBuilder.fromHttpUrl(request.getRequestURL().toString())
+			.replacePath(null)
+			.toUriString();
+		return new Origin(origin);
 	}
 
 }
