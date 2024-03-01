@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user.webauthn;
+package wf.garnier.webauthn.user.webauthn.legacy;
 
 import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Component;
@@ -6,7 +6,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @Component
-public class WebAuthNAuthenticatorRepository {
+public class AuthenticatorLegacyRepository {
 
 	private final MultiValueMap<String, UserAuthenticatorLegacy> authenticators = new LinkedMultiValueMap<>();
 

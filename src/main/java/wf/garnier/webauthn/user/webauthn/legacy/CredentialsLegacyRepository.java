@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user.webauthn;
+package wf.garnier.webauthn.user.webauthn.legacy;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,9 +6,11 @@ import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
+import wf.garnier.webauthn.user.webauthn.CredentialsRegistration;
+import wf.garnier.webauthn.user.webauthn.CredentialsVerification;
 
 @Component
-public class CredentialsRepository {
+public class CredentialsLegacyRepository {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 

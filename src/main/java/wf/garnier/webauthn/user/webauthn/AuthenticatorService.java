@@ -31,9 +31,11 @@ public class AuthenticatorService {
 	private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
 
 	// TODO from properties
+	// Note that origin could be loaded by the frontend
 	private final Origin origin = new Origin("http://localhost:8080");
 
 	// TODO from properties
+	// Note that origin
 	private final String rpId = "localhost";
 
 	AttestedCredentialDataConverter attestedCredentialDataConverter = new AttestedCredentialDataConverter(
@@ -106,7 +108,9 @@ public class AuthenticatorService {
 		try {
 			AuthenticationData authenticationData = webAuthnManager.parse(authenticationRequest);
 			webAuthnManager.validate(authenticationData, authenticationParameters);
-			// TODO: required ?
+
+			// TODO: required per spec, to allow for authenticator clone detection, see:
+			// https://www.w3.org/TR/webauthn-3/#sctn-sign-counter
 			// userAuthenticator.setCounter(authenticationData.getAuthenticatorData().getSignCount());
 		}
 		catch (DataConversionException e) {

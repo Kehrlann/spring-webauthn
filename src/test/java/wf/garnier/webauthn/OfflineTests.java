@@ -25,7 +25,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import wf.garnier.webauthn.user.webauthn.CredentialsRepository;
+import wf.garnier.webauthn.user.webauthn.legacy.CredentialsLegacyRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ class OfflineTests {
 
 	private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
 
-	private final CredentialsRepository credentialsRepository = new CredentialsRepository();
+	private final CredentialsLegacyRepository credentialsRepository = new CredentialsLegacyRepository();
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
