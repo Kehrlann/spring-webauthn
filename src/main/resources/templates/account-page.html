@@ -18,7 +18,7 @@
 <ul>
     <li th:each="authenticator: ${authenticators}">
         <form action="/passkey/delete" method="POST">
-            <span th:text="${authenticator.getId()}"></span>
+            <span th:text="${authenticator.getCredentialsName()}"></span>
             <input type="hidden" name="credential-id" th:value="${authenticator.getId()}"/>
             <input type="hidden" th:name="${_csrf.getParameterName()}" th:value="${_csrf.getToken()}"/>
             <button type="submit" class="inline">Delete</button>
@@ -26,7 +26,9 @@
     </li>
 </ul>
 <h2>Register new passkey</h2>
-<button id="register-webauthn">Register new Passkey</button>
+<label for="passkey-name">Passkey name</label>
+<input type="text" id="passkey-name"/>
+<button id="register-webauthn">Register</button>
 </body>
 <script th:inline="javascript">
     // TODO: note, these keys should be generated at sign-in time, not page build time.
@@ -45,7 +47,6 @@
             displayName: [[${username}]],
             name: [[${username}]]
         },
-        credentialNickname: "whynot",
         pubKeyCredParams: [{alg: -7, type: "public-key"}],
         // Cross-platform: Yubikey etc
         // Platform: TouchID, Windows Hello, etc
@@ -61,13 +62,20 @@
     };
 
     document.getElementById("register-webauthn").addEventListener("click", async () => {
+        const passkeyField = document.getElementById("passkey-name")
+        const passkeyName = passkeyField.value
+        passkeyField.value = ""
+        // TODO: if name missing, alert & abort
+
         const credentials = await navigator.credentials.create({
             publicKey: publicKeyCredentialCreationOptions
         });
+        // TODO: hack 😱😱😱
+        const parsedResponse = JSON.parse(JSON.stringify(credentials))
         fetch("/passkey/register",
             {
                 method: "POST",
-                body: JSON.stringify(credentials),
+                body: JSON.stringify({response: parsedResponse.response, id: parsedResponse.id, name: passkeyName}),
                 credentials: "same-origin",
                 headers: {
                     [[${_csrf.headerName}]]: [[${_csrf.token}]],

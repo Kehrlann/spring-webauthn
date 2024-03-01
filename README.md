@@ -39,7 +39,8 @@ Demo for Spring + WebAuthN
 - [x] Authenticator registration (revocation ?)
 - [x] Authentication
 - [x] persist authenticator
-- [ ] name authenticator
+- [x] name authenticator
+- [ ] Clean up the request to register a new authenticator (what's base64 encoded...)
 - [ ] refresh page when registering an authenticator + flash
 - [ ] remove dead code
 - [ ] clean up routes

@@ -46,8 +46,7 @@ public class AuthenticatorService {
 		this.repository = repository;
 	}
 
-	public void saveCredentials(CredentialsRegistration registration, String challenge, User user,
-			String credentialName) {
+	public void saveCredentials(CredentialsRegistration registration, String challenge, User user) {
 		var attestationObject = Base64.getUrlDecoder().decode(registration.response().attestationObject());
 		var clientDataJSON = Base64.getUrlDecoder().decode(registration.response().clientDataJSON());
 		var base64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
@@ -77,11 +76,12 @@ public class AuthenticatorService {
 				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
 				registrationData.getAttestationObject().getAttestationStatement(),
 				registrationData.getAttestationObject().getAuthenticatorData().getSignCount());
+
 		var attestedCredentialsData = attestedCredentialDataConverter
 			.convert(authenticator.getAttestedCredentialData());
 		// TODO: attestation statement, is it always NoneAttestationStatement?
 		// https://webauthn4j.github.io/webauthn4j/en/#attestationstatement
-		var serializedAuthenticator = new UserAuthenticator(registration.id(), user, credentialName,
+		var serializedAuthenticator = new UserAuthenticator(registration.id(), user, registration.name(),
 				attestedCredentialsData, null, authenticator.getCounter());
 		repository.save(serializedAuthenticator);
 	}
