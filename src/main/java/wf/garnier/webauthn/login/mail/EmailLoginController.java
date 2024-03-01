@@ -1,4 +1,4 @@
-package wf.garnier.webauthn;
+package wf.garnier.webauthn.login.mail;
 
 import java.util.UUID;
 
@@ -10,20 +10,18 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
-import wf.garnier.webauthn.user.LoginCode;
-import wf.garnier.webauthn.user.LoginCodeRepository;
-import wf.garnier.webauthn.user.User;
-import wf.garnier.webauthn.user.UserAuthenticationToken;
-import wf.garnier.webauthn.user.UserRepository;
+import wf.garnier.webauthn.models.LoginCode;
+import wf.garnier.webauthn.models.LoginCodeRepository;
+import wf.garnier.webauthn.models.UserAuthenticationToken;
+import wf.garnier.webauthn.models.UserRepository;
 
 @Controller
-class UserController {
+class EmailLoginController {
 
 	private final UserRepository userRepository;
 
@@ -33,27 +31,15 @@ class UserController {
 
 	private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
-	public UserController(UserRepository userRepository, LoginCodeRepository loginCodeRepository,
+	public EmailLoginController(UserRepository userRepository, LoginCodeRepository loginCodeRepository,
 			MacOsMailNotifier mailNotifier) {
 		this.userRepository = userRepository;
 		this.loginCodeRepository = loginCodeRepository;
 		this.mailNotifier = mailNotifier;
 	}
 
-	@GetMapping("/user/register")
-	public String registerPage() {
-		return "user/register";
-	}
-
-	@PostMapping("/user/register")
-	public String registerAction(@Validated User user, RedirectAttributes redirectAttributes) {
-		userRepository.save(user);
-		redirectAttributes.addFlashAttribute("alert", "You have been registered");
-		return "redirect:/";
-	}
-
 	@PostMapping("/login-mail")
-	public String requestCode(@RequestParam String email, RedirectAttributes redirectAttributes,
+	public String requestLoginEmail(@RequestParam String email, RedirectAttributes redirectAttributes,
 			HttpServletRequest request) {
 		var user = userRepository.findUserByEmail(email);
 		if (user.isPresent()) {

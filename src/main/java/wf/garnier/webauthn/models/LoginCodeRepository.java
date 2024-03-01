@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user;
+package wf.garnier.webauthn.models;
 
 import java.util.UUID;
 

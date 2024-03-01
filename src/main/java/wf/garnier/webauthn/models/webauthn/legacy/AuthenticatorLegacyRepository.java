@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user.webauthn.legacy;
+package wf.garnier.webauthn.models.webauthn.legacy;
 
 import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package wf.garnier.webauthn;
+package wf.garnier.webauthn.login.mail;
 
 import java.io.IOException;
 

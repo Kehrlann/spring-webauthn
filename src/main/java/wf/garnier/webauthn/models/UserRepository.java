@@ -1,10 +1,9 @@
-package wf.garnier.webauthn.user;
+package wf.garnier.webauthn.models;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
-import wf.garnier.webauthn.user.User;
 
 public interface UserRepository extends CrudRepository<User, UUID> {
 

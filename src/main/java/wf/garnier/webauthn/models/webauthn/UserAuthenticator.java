@@ -1,13 +1,11 @@
-package wf.garnier.webauthn.user.webauthn;
-
-import java.util.UUID;
+package wf.garnier.webauthn.models.webauthn;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import wf.garnier.webauthn.user.User;
+import wf.garnier.webauthn.models.User;
 
 @Entity
 @Table(name = "authenticator")

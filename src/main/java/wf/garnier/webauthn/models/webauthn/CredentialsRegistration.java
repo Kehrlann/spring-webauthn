@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user.webauthn;
+package wf.garnier.webauthn.models.webauthn;
 
 public record CredentialsRegistration(String id, String rawId, Response response, String type) {
 

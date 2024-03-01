@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user.webauthn.legacy;
+package wf.garnier.webauthn.models.webauthn.legacy;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -18,7 +18,7 @@ import com.webauthn4j.data.extension.authenticator.AuthenticationExtensionsAuthe
 import com.webauthn4j.data.extension.authenticator.RegistrationExtensionAuthenticatorOutput;
 import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.validator.exception.ValidationException;
-import wf.garnier.webauthn.user.webauthn.CredentialsRegistration;
+import wf.garnier.webauthn.models.webauthn.CredentialsRegistration;
 
 public class UserAuthenticatorLegacy implements Authenticator {
 

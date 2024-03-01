@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user.webauthn;
+package wf.garnier.webauthn.models.webauthn;
 
 import java.util.Base64;
 
@@ -21,7 +21,7 @@ import com.webauthn4j.validator.exception.ValidationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import wf.garnier.webauthn.user.User;
+import wf.garnier.webauthn.models.User;
 
 @Component
 public class AuthenticatorService {

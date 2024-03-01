@@ -1,7 +1,6 @@
-package wf.garnier.webauthn.user;
+package wf.garnier.webauthn.models;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import wf.garnier.webauthn.user.User;
 
 public class UserAuthenticationToken extends AbstractAuthenticationToken {
 

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import wf.garnier.webauthn.user.webauthn.legacy.CredentialsLegacyRepository;
+import wf.garnier.webauthn.models.webauthn.legacy.CredentialsLegacyRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

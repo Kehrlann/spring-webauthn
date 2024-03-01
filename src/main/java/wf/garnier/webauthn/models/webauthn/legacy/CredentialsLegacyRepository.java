@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user.webauthn.legacy;
+package wf.garnier.webauthn.models.webauthn.legacy;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,8 +6,8 @@ import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
-import wf.garnier.webauthn.user.webauthn.CredentialsRegistration;
-import wf.garnier.webauthn.user.webauthn.CredentialsVerification;
+import wf.garnier.webauthn.models.webauthn.CredentialsRegistration;
+import wf.garnier.webauthn.models.webauthn.CredentialsVerification;
 
 @Component
 public class CredentialsLegacyRepository {

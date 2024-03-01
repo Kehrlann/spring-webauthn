@@ -1,4 +1,4 @@
-package wf.garnier.webauthn.user;
+package wf.garnier.webauthn.models;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import wf.garnier.webauthn.user.User;
 
 
 @Entity
