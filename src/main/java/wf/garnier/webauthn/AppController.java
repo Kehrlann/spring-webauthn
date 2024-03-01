@@ -51,7 +51,7 @@ class AppController {
 
 	@GetMapping("/account")
 	public String accountPage(@AuthenticationPrincipal User user, Model model) {
-		var authenticators = authenticatorRepository.findUserAuthenticatorByUser(user).stream().map(UserAuthenticator::getCredentialsName).toList();
+		var authenticators = authenticatorRepository.findUserAuthenticatorByUser(user);
 		model.addAttribute("username", user.getUsername());
 		model.addAttribute("challenge", UUID.randomUUID().toString());
 		model.addAttribute("authenticators", authenticators);

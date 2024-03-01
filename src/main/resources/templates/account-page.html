@@ -11,7 +11,13 @@
 <hr>
 <h2>Existing Passkeys</h2>
 <ul>
-    <li th:each="authenticator: ${authenticators}" th:text="${authenticator}"></li>
+    <li th:each="authenticator: ${authenticators}">
+        <form action="/webauthn/delete">
+            <span th:text="${authenticator.getId()}"></span>
+            <input type="hidden" name="id" th:value="${authenticator.getId()}" />
+            <button type="submit" class="inline">Delete</button>
+        </form>
+    </li>
 </ul>
 <h2>Register new passkey</h2>
 <button id="register-webauthn">Register new Passkey</button>
@@ -66,7 +72,6 @@
             .then(r => console.log(r))
             .catch(err => console.error(err))
             .finally(() => console.log("yep, done"))
-
     })
 </script>
 </html>
