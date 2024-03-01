@@ -8,6 +8,9 @@ spring:
       mode: always
       continue-on-error: false
       schema-locations: classpath*:db/schema.sql
+  thymeleaf:
+    cache: false
+
 server:
   servlet:
     session:
