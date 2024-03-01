@@ -18,6 +18,7 @@ import com.webauthn4j.data.client.Origin;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.validator.exception.ValidationException;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -124,6 +125,11 @@ public class AuthenticatorService {
 			throw e;
 		}
 		return userAuthenticator.getUser();
+	}
+
+	@Transactional
+	public boolean deleteCredential(User user, String credentialId) {
+		return repository.deleteByIdAndUser(credentialId, user) > 0;
 	}
 
 }

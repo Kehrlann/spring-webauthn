@@ -47,7 +47,9 @@
                 },
                 redirect: "follow"
             })
-            .then(r => window.location.href = r.url) // TODO: r.redirected
+            // TODO: this is a hack, we should be using a form instead
+            // Or a REST response with a Link: header
+            .then(r => window.location.href = r.url)
             .catch(err => console.error(err))
             .finally(() => console.log("yep, done"));
         console.log(credentialsResponse);

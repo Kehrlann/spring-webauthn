@@ -6,15 +6,21 @@
 </head>
 <body>
 <h1>Account page - <span th:text="${username}"></span></h1>
-<p>We will see your account page later.</p>
+<div th:if="${alert != null}" th:text="${alert}"></div>
+<p>Your information:</p>
+<ul>
+    <li>username: <span th:text="${username}"></span></li>
+    <li>email: <span th:text="${email}"></span></li>
+</ul>
 <a href="/logout">logout</a>
 <hr>
 <h2>Existing Passkeys</h2>
 <ul>
     <li th:each="authenticator: ${authenticators}">
-        <form action="/webauthn/delete">
+        <form action="/passkey/delete" method="POST">
             <span th:text="${authenticator.getId()}"></span>
-            <input type="hidden" name="id" th:value="${authenticator.getId()}" />
+            <input type="hidden" name="credential-id" th:value="${authenticator.getId()}"/>
+            <input type="hidden" th:name="${_csrf.getParameterName()}" th:value="${_csrf.getToken()}"/>
             <button type="submit" class="inline">Delete</button>
         </form>
     </li>
@@ -66,12 +72,16 @@
                 headers: {
                     [[${_csrf.headerName}]]: [[${_csrf.token}]],
                     "Content-Type": "application/json;charset=utf-8"
-                }
+                },
+                redirect: "follow"
             })
-            .then(r => r.json())
-            .then(r => console.log(r))
+            // TODO: this is a hack, we should be using a form instead
+            // Or a REST response with a Link: header
+            // It loses Redirect Attributes becaues the page is loaded by the fetch, and then by the
+            // navigate
+            .then(r => document.location.href = r.url)
             .catch(err => console.error(err))
-            .finally(() => console.log("yep, done"))
+            .finally(() => console.log("yep, done"));
     })
 </script>
 </html>
