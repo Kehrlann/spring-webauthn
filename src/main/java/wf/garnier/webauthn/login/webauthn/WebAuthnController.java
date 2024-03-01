@@ -30,7 +30,7 @@ class WebAuthnController {
 		this.authenticatorService = authenticatorService;
 	}
 
-	@PostMapping("/register")
+	@PostMapping("/passkey/register")
 	public ResponseEntity<CredentialsRegistration> register(@RequestBody CredentialsRegistration credentials,
 			@SessionAttribute("challenge") String challenge, @AuthenticationPrincipal User user,
 			SessionStatus sessionStatus) {
@@ -42,7 +42,7 @@ class WebAuthnController {
 		return new ResponseEntity<>(credentials, HttpStatus.CREATED);
 	}
 
-	@PostMapping("/webauthn-login")
+	@PostMapping("/passkey/login")
 	public String login(@RequestBody CredentialsVerification verification, SessionStatus sessionStatus,
 			@SessionAttribute("challenge") String challenge, HttpServletRequest request, HttpServletResponse response) {
 		var user = authenticatorService.authenticate(verification, challenge);

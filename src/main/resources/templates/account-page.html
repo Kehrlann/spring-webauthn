@@ -58,7 +58,7 @@
         const credentials = await navigator.credentials.create({
             publicKey: publicKeyCredentialCreationOptions
         });
-        fetch("/register",
+        fetch("/passkey/register",
             {
                 method: "POST",
                 body: JSON.stringify(credentials),
