@@ -13,6 +13,23 @@ Demo for Spring + WebAuthN
 
 ### WebAuthN log in
 
+## Important stuff to mention
+
+- CBOR: Compact Binary Object Representation
+- COSE: COBR Object Signing and Encryption
+- Attestation: verifiable evidence as to the origin of an authenticator and the data it emits
+  - Credential IDs, creds Key Pair, Signature Counter
+- Ceremony: protocol + human interactions (out of band for protocol)
+- Authentication Ceremony: 
+  - Test of user presence or user verification
+  - "Authorization gesture", physical interaction
+- Authenticator types:
+  - Hardware or Software
+  - In the client device (platform authenticators) or outside (roaming authenticator)
+  - Stores key locally or on a server
+- Discoverable keys
+  - Stored on device, per RP-id
+  - Contrary to server-side public key credentials source?
 
 ## TODO
 
@@ -29,3 +46,6 @@ Demo for Spring + WebAuthN
 - [ ] css styling
 - [ ] code expiry
 - [ ] delete authenticator
+
+- [ ] mkcert for auth.localhost.garnier.wf (?)
+- [ ] deploy online (?)
