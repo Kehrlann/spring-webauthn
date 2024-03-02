@@ -42,11 +42,14 @@ Demo for Spring + WebAuthN
 - [x] name authenticator
 - [ ] Clean up the request to register a new authenticator (what's base64 encoded...)
 - [ ] refresh page when registering an authenticator + flash
+  - /!\ fetch API is very limited for this
 - [ ] remove dead code
-- [ ] clean up routes
+- [x] clean up routes
 - [ ] css styling
 - [ ] code expiry
-- [ ] delete authenticator
+- [x] delete authenticator
 
 - [ ] mkcert for auth.localhost.garnier.wf (?)
 - [ ] deploy online (?)
+- [ ] ykman / safari password management
+  - `ykman credentials list`

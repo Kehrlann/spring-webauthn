@@ -1,161 +1,139 @@
 package wf.garnier.webauthn;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Base64;
-import java.util.Map;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webauthn4j.WebAuthnManager;
-import com.webauthn4j.authenticator.Authenticator;
 import com.webauthn4j.authenticator.AuthenticatorImpl;
-import com.webauthn4j.converter.exception.DataConversionException;
-import com.webauthn4j.data.AuthenticationData;
+import com.webauthn4j.converter.AttestationObjectConverter;
+import com.webauthn4j.converter.util.ObjectConverter;
 import com.webauthn4j.data.AuthenticationParameters;
 import com.webauthn4j.data.AuthenticationRequest;
-import com.webauthn4j.data.RegistrationData;
 import com.webauthn4j.data.RegistrationParameters;
 import com.webauthn4j.data.RegistrationRequest;
 import com.webauthn4j.data.client.Origin;
-import com.webauthn4j.data.client.challenge.Challenge;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.validator.exception.ValidationException;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import wf.garnier.webauthn.models.webauthn.legacy.CredentialsLegacyRepository;
+import wf.garnier.webauthn.models.webauthn.CredentialsRegistration;
+import wf.garnier.webauthn.models.webauthn.CredentialsVerification;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OfflineTests {
-
-	private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
-
-	private final CredentialsLegacyRepository credentialsRepository = new CredentialsLegacyRepository();
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	private static Authenticator authenticator;
+	private final WebAuthnManager webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager();
+
+	private final File registrationFile = Paths.get("./registration.json").toFile();
+
+	private final File authenticationFile = Paths.get("./authentication.json").toFile();
+
+	private final String registrationChallenge = "c9e2fde1-56f1-4e4e-83b9-f99997a460ad";
+
+	private final String authenticationChallenge = "faf484f2-1672-4a82-b781-319855069885";
 
 	@Test
-	@Order(1)
-	void register() throws IOException {
-		var savedCreds = credentialsRepository.loadCredentials();
-		var savedCredsResponse = savedCreds.response();
+	void onlyAttestation() throws IOException {
+		var registration = objectMapper.readValue(registrationFile, CredentialsRegistration.class);
+		var attestationBytes = Base64.getUrlDecoder().decode(registration.response().attestationObject());
 
-		var decodedClientDataJSON = Base64.getUrlDecoder().decode(savedCreds.response().clientDataJSON());
-		Map<String, String> clientDataJson = objectMapper.readValue(decodedClientDataJSON, Map.class);
-		// Client properties
-		byte[] attestationObject = Base64.getUrlDecoder()
-			.decode(savedCredsResponse.attestationObject()) /* set attestationObject */;
-		byte[] clientDataJSON = decodedClientDataJSON /* set clientDataJSON */;
-		String clientExtensionJSON = null; /* set clientExtensionJSON */
-		Set<String> transports = null /* set transports */;
+		// STEP 2: verify!
+		var authentication = objectMapper.readValue(authenticationFile, CredentialsVerification.class);
+		var authClientDataJsonBytes = Base64.getUrlDecoder().decode(authentication.response().clientDataJSON());
+		var signautreBytes = Base64.getUrlDecoder().decode(authentication.response().signature());
+		var authenticatorData = Base64.getUrlDecoder().decode(authentication.response().authenticatorData());
 
-		// Server properties
-		Origin origin = new Origin("http://localhost:8080");
-		String rpId = "localhost" /* set rpId */;
-		Challenge challenge = new DefaultChallenge(
-				clientDataJson.get("challenge")) /* set challenge */;
-		byte[] tokenBindingId = null /* set tokenBindingId */;
-		ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, tokenBindingId);
+		var converter = new AttestationObjectConverter(new ObjectConverter());
+		var hydrated = converter.convert(attestationBytes);
+		var authenticator = new AuthenticatorImpl(hydrated.getAuthenticatorData().getAttestedCredentialData(),
+				hydrated.getAttestationStatement(), hydrated.getAuthenticatorData().getSignCount());
 
-		// expectations
-		boolean userVerificationRequired = false;
-		boolean userPresenceRequired = true;
+		var authenticationRequest = new AuthenticationRequest(authentication.id().getBytes(),
+				authenticatorData, authClientDataJsonBytes, signautreBytes);
 
-		RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON,
-				clientExtensionJSON, transports);
-		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty,
-				userVerificationRequired, userPresenceRequired);
-		RegistrationData registrationData;
-		try {
-			registrationData = webAuthnManager.parse(registrationRequest);
-		}
-		catch (DataConversionException e) {
-			// If you would like to handle WebAuthn data structure parse error, please
-			// catch DataConversionException
-			throw e;
-		}
-		try {
-			webAuthnManager.validate(registrationData, registrationParameters);
-		}
-		catch (ValidationException e) {
-			// If you would like to handle WebAuthn data validation error, please catch
-			// ValidationException
-			throw e;
-		}
+		//@formatter:off
+		assertThatNoException()
+			.describedAs("valid signature")
+			.isThrownBy(() -> {
+				var serverProperty = getServerProperty(authenticationChallenge);
+				var authenticationParameters = new AuthenticationParameters(serverProperty, authenticator, false);
+				webAuthnManager.validate(authenticationRequest, authenticationParameters);
+		});
 
-		// please persist Authenticator object, which will be used in the authentication
-		// process.
-		authenticator = new AuthenticatorImpl(
-				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-				registrationData.getAttestationObject().getAttestationStatement(),
-				registrationData.getAttestationObject().getAuthenticatorData().getSignCount());
+		assertThatExceptionOfType(ValidationException.class)
+			.describedAs("invalid signature because")
+			.isThrownBy(() -> {
+				var serverProperty = getServerProperty("incorrect-challenge");
+				var authenticationParameters = new AuthenticationParameters(serverProperty, authenticator, false);
+				webAuthnManager.validate(authenticationRequest, authenticationParameters);
+		});
+		//@formatter:on
 	}
 
 	@Test
-	@Order(2)
-	void verify() throws IOException {
-		var credsResponse = credentialsRepository.loadResponse();
-		var clientDataJSONbytes = Base64.getUrlDecoder().decode(credsResponse.response().clientDataJSON());
-		Map<String, String> clientDataJson = objectMapper.readValue(clientDataJSONbytes, Map.class);
+	void fullAuthenticatorImplementation() throws IOException {
+		var registration = objectMapper.readValue(registrationFile, CredentialsRegistration.class);
+		var clientDataJsonBytes = Base64.getUrlDecoder().decode(registration.response().clientDataJSON());
+		var attestationBytes = Base64.getUrlDecoder().decode(registration.response().attestationObject());
 
-		// Client properties
-		byte[] credentialId = credsResponse.id().getBytes() /* set credentialId */;
-		byte[] authenticatorData = Base64.getUrlDecoder()
-			.decode(credsResponse.response()
-				.authenticatorData()) /* set authenticatorData */;
-		byte[] clientDataJSON = clientDataJSONbytes/* set clientDataJSON */;
-		String clientExtensionJSON = null /* set clientExtensionJSON */;
-		byte[] signature = Base64.getUrlDecoder()
-			.decode(credsResponse.response().signature()) /* set signature */;
+		var registrationServerProperty = getServerProperty(registrationChallenge);
+		var registrationRequest = new RegistrationRequest(attestationBytes, clientDataJsonBytes);
+		var registrationParameters = new RegistrationParameters(registrationServerProperty, false);
 
-		// Server properties
-		Origin origin = new Origin("http://localhost:8080");
-		String rpId = "localhost" /* set rpId */;
-		Challenge challenge = new DefaultChallenge(
-				clientDataJson.get("challenge")) /* set challenge */;
-		ServerProperty serverProperty = new ServerProperty(origin, rpId, challenge, null);
+		// parse-and-validate, throws if wrong
+		var registrationData = webAuthnManager.validate(registrationRequest, registrationParameters);
+		var authenticator = new AuthenticatorImpl(
+				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
+				registrationData.getAttestationObject().getAttestationStatement(),
+				registrationData.getAttestationObject().getAuthenticatorData().getSignCount()
+		);
 
-		AuthenticationRequest authenticationRequest = new AuthenticationRequest(credentialId, authenticatorData,
-				clientDataJSON, signature);
-		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator,
-				null, false, false);
+		// STEP 2: verify!
+		var authentication = objectMapper.readValue(authenticationFile, CredentialsVerification.class);
+		var authClientDataJsonBytes = Base64.getUrlDecoder().decode(authentication.response().clientDataJSON());
+		var signature = Base64.getUrlDecoder().decode(authentication.response().signature());
+		var authenticatorData = Base64.getUrlDecoder().decode(authentication.response().authenticatorData());
 
-		AuthenticationData authenticationData;
-		try {
-			authenticationData = webAuthnManager.parse(authenticationRequest);
-			assertThat(authenticatorData).isNotNull();
-		}
-		catch (DataConversionException e) {
-			// If you would like to handle WebAuthn data structure parse error, please
-			// catch DataConversionException
-			throw e;
-		}
-		try {
-			var thing = webAuthnManager.validate(authenticationData, authenticationParameters);
+		var authenticationRequest = new AuthenticationRequest(authentication.id().getBytes(),
+				authenticatorData, authClientDataJsonBytes, signature);
 
-			// TODO: sign multiple times :arghl:
-			assertThat(thing).isNotNull();
-		}
-		catch (ValidationException e) {
-			// If you would like to handle WebAuthn data validation error, please catch
-			// ValidationException
-			throw e;
-		}
+		//@formatter:off
+		assertThatNoException()
+				.describedAs("valid signature")
+				.isThrownBy(() -> {
+					var serverProperty = getServerProperty(authenticationChallenge);
+					AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator, false);
+					webAuthnManager.validate(authenticationRequest, authenticationParameters);
+				});
 
-		// ?!
-		// please update the counter of the authenticator record
-		// updateCounter(
-		// authenticationData.getCredentialId(),
-		// authenticationData.getAuthenticatorData().getSignCount()
-		// );
+		assertThatExceptionOfType(ValidationException.class)
+				.describedAs("invalid signature because")
+				.isThrownBy(() -> {
+					var serverProperty = getServerProperty("incorrect-challenge");
+					AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator, false);
+					webAuthnManager.validate(authenticationRequest, authenticationParameters);
+				});
+		//@formatter:on
+	}
 
-		assertThat(authenticator).isNotNull();
+	private ServerProperty getServerProperty(String challenge) {
+		var base64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
+		return new ServerProperty(getOrigin(), getRpId(), new DefaultChallenge(base64Challenge), null);
+	}
+
+	private String getRpId() {
+		return "localhost";
+	}
+
+	private Origin getOrigin() {
+		return new Origin("http://localhost:8080");
 	}
 
 }

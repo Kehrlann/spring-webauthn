@@ -1,0 +1,9 @@
+{
+  "id": "X7RlUE2nwMAhTKgNmPevPg",
+  "rawId": "X7RlUE2nwMAhTKgNmPevPg",
+  "response": {
+    "authenticatorData": "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAAAAQ",
+    "clientDataJSON": "eyJjaGFsbGVuZ2UiOiJabUZtTkRnMFpqSXRNVFkzTWkwMFlUZ3lMV0kzT0RFdE16RTVPRFUxTURZNU9EZzEiLCJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJ0eXBlIjoid2ViYXV0aG4uZ2V0In0",
+    "signature": "MEUCIB8TGVxVDs4LTCmgIJjsPca1nDjiwDEPfbWYu4ZbqYxkAiEA8o9DG6mekWF9Sj3bogCzGTCYi837BqTKotn7CoHSyIE"
+  }
+}

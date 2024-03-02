@@ -35,7 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-### Credentials.json
-credentials.json
-credentials-response.json
