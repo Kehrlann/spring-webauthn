@@ -50,9 +50,8 @@ public class AuthenticatorService {
 
 		ServerProperty serverProperty = new ServerProperty(getOrigin(), getRpId(),
 				new DefaultChallenge(base64Challenge), null);
-		RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON, null,
-				null);
-		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, false, true);
+		RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON);
+		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, null, false);
 		RegistrationData registrationData;
 		try {
 			registrationData = webAuthnManager.parse(registrationRequest);
