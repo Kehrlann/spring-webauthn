@@ -35,7 +35,7 @@ class WebAuthnController {
 	public String register(@RequestBody CredentialsRegistration credentials,
 			@SessionAttribute("challenge") String challenge, @AuthenticationPrincipal User user,
 			SessionStatus sessionStatus, RedirectAttributes redirectAttributes) {
-		authenticatorService.saveCredentials(credentials, challenge, user);
+		authenticatorService.saveCredentials(credentials, user);
 
 		sessionStatus.setComplete();
 

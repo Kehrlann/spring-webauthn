@@ -7,8 +7,8 @@ import wf.garnier.webauthn.models.User;
 
 public interface UserAuthenticatorRepository extends CrudRepository<UserAuthenticator, String> {
 
-    List<UserAuthenticator> findUserAuthenticatorByUser(User user);
+	List<UserAuthenticator> findUserAuthenticatorByUser(User user);
 
-    long deleteByIdAndUser(String id, User user);
+	long deleteByIdAndUser(String id, User user);
 
 }

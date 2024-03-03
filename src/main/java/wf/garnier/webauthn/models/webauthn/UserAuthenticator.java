@@ -17,25 +17,18 @@ public class UserAuthenticator {
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	private User user;
 
-	private String credentialsName; // unique per user, meh
+	private String credentialsName;
 
-	private byte[] attestedCredentialsData;
-
-	private byte[] attestationStatement;
-
-	private long counter;
+	private byte[] attestationObject;
 
 	public UserAuthenticator() {
 	}
 
-	public UserAuthenticator(String id, User user, String credentialsName, byte[] attestedCredentialsData,
-			byte[] attestationStatement, long counter) {
+	public UserAuthenticator(String id, User user, String credentialsName, byte[] attestationObject) {
 		this.id = id;
 		this.user = user;
 		this.credentialsName = credentialsName;
-		this.attestedCredentialsData = attestedCredentialsData;
-		this.attestationStatement = attestationStatement;
-		this.counter = counter;
+		this.attestationObject = attestationObject;
 	}
 
 	public void setId(String id) {
@@ -62,28 +55,12 @@ public class UserAuthenticator {
 		this.credentialsName = credentialsName;
 	}
 
-	public byte[] getAttestedCredentialsData() {
-		return attestedCredentialsData;
+	public byte[] attestationObject() {
+		return attestationObject;
 	}
 
-	public void setAttestedCredentialsData(byte[] attestedCredentialsData) {
-		this.attestedCredentialsData = attestedCredentialsData;
-	}
-
-	public byte[] getAttestationStatement() {
-		return attestationStatement;
-	}
-
-	public void setAttestationStatement(byte[] attestationStatement) {
-		this.attestationStatement = attestationStatement;
-	}
-
-	public long getCounter() {
-		return counter;
-	}
-
-	public void setCounter(long counter) {
-		this.counter = counter;
+	public void setAttestationObject(byte[] attestationStatement) {
+		this.attestationObject = attestationStatement;
 	}
 
 }

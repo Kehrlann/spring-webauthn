@@ -4,16 +4,11 @@ import java.util.Base64;
 
 import com.webauthn4j.WebAuthnManager;
 import com.webauthn4j.authenticator.AuthenticatorImpl;
-import com.webauthn4j.converter.AttestedCredentialDataConverter;
+import com.webauthn4j.converter.AttestationObjectConverter;
 import com.webauthn4j.converter.exception.DataConversionException;
 import com.webauthn4j.converter.util.ObjectConverter;
-import com.webauthn4j.data.AuthenticationData;
 import com.webauthn4j.data.AuthenticationParameters;
 import com.webauthn4j.data.AuthenticationRequest;
-import com.webauthn4j.data.RegistrationData;
-import com.webauthn4j.data.RegistrationParameters;
-import com.webauthn4j.data.RegistrationRequest;
-import com.webauthn4j.data.attestation.statement.NoneAttestationStatement;
 import com.webauthn4j.data.client.Origin;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
@@ -35,7 +30,7 @@ public class AuthenticatorService {
 
 	private final HttpServletRequest request;
 
-	AttestedCredentialDataConverter attestedCredentialDataConverter = new AttestedCredentialDataConverter(
+	private final AttestationObjectConverter attestationConverter = new AttestationObjectConverter(
 			new ObjectConverter());
 
 	public AuthenticatorService(UserAuthenticatorRepository repository, HttpServletRequest request) {
@@ -43,69 +38,36 @@ public class AuthenticatorService {
 		this.request = request;
 	}
 
-	public void saveCredentials(CredentialsRegistration registration, String challenge, User user) {
+	public void saveCredentials(CredentialsRegistration registration, User user) {
 		var attestationObject = Base64.getUrlDecoder().decode(registration.response().attestationObject());
-		var clientDataJSON = Base64.getUrlDecoder().decode(registration.response().clientDataJSON());
-		var base64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
+		// TODO: you should absolutely validate the attestation, not trust it blindly!
 
-		ServerProperty serverProperty = new ServerProperty(getOrigin(), getRpId(),
-				new DefaultChallenge(base64Challenge), null);
-		RegistrationRequest registrationRequest = new RegistrationRequest(attestationObject, clientDataJSON);
-		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, null, false);
-		RegistrationData registrationData;
-		try {
-			registrationData = webAuthnManager.parse(registrationRequest);
-			webAuthnManager.validate(registrationData, registrationParameters);
-		}
-		catch (DataConversionException e) {
-			// If you would like to handle WebAuthn data structure parse error, please
-			// catch DataConversionException
-			// TODO: better
-			throw e;
-		}
-		catch (ValidationException e) {
-			// If you would like to handle WebAuthn data validation error, please catch
-			// ValidationException
-			// TODO: better
-			throw e;
-		}
-		var authenticator = new AuthenticatorImpl(
-				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-				registrationData.getAttestationObject().getAttestationStatement(),
-				registrationData.getAttestationObject().getAuthenticatorData().getSignCount());
-
-		var attestedCredentialsData = attestedCredentialDataConverter
-			.convert(authenticator.getAttestedCredentialData());
-		// TODO: attestation statement, is it always NoneAttestationStatement?
-		// https://webauthn4j.github.io/webauthn4j/en/#attestationstatement
 		var serializedAuthenticator = new UserAuthenticator(registration.id(), user, registration.name(),
-				attestedCredentialsData, null, authenticator.getCounter());
+				attestationObject);
 		repository.save(serializedAuthenticator);
 	}
 
 	public User authenticate(CredentialsVerification verification, String challenge) throws AuthenticationException {
 		var userAuthenticator = repository.findById(verification.id())
 			.orElseThrow(() -> new BadCredentialsException("Unknown credentials"));
-		var authenticator = new AuthenticatorImpl(
-				attestedCredentialDataConverter.convert(userAuthenticator.getAttestedCredentialsData()),
-				new NoneAttestationStatement(), userAuthenticator.getCounter());
+		var attestation = attestationConverter.convert(userAuthenticator.attestationObject());
 
-		var b64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
-		ServerProperty serverProperty = new ServerProperty(getOrigin(), getRpId(), new DefaultChallenge(b64Challenge),
-				null);
+		var authenticator = new AuthenticatorImpl(attestation.getAuthenticatorData().getAttestedCredentialData(),
+				attestation.getAttestationStatement(), attestation.getAuthenticatorData().getSignCount());
 
 		var clientDataJSON = Base64.getUrlDecoder().decode(verification.response().clientDataJSON());
 		var authenticatorData = Base64.getUrlDecoder().decode(verification.response().authenticatorData());
 		var signature = Base64.getUrlDecoder().decode(verification.response().signature());
+		var b64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
 
-		AuthenticationRequest authenticationRequest = new AuthenticationRequest(verification.id().getBytes(),
-				authenticatorData, clientDataJSON, signature);
-		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator,
-				null, false, false);
+		var serverProperty = new ServerProperty(getOrigin(), getRpId(), new DefaultChallenge(b64Challenge), null);
+
+		var authenticationRequest = new AuthenticationRequest(verification.id().getBytes(), authenticatorData,
+				clientDataJSON, signature);
+		var authenticationParameters = new AuthenticationParameters(serverProperty, authenticator, false);
 
 		try {
-			AuthenticationData authenticationData = webAuthnManager.parse(authenticationRequest);
-			webAuthnManager.validate(authenticationData, authenticationParameters);
+			webAuthnManager.validate(authenticationRequest, authenticationParameters);
 
 			// TODO: required per spec, to allow for authenticator clone detection, see:
 			// https://www.w3.org/TR/webauthn-3/#sctn-sign-counter
