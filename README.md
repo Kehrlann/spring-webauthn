@@ -53,3 +53,11 @@ Demo for Spring + WebAuthN
 - [ ] deploy online (?)
 - [ ] ykman / safari password management
   - `ykman credentials list`
+
+## Notes
+
+- CBOR spec: https://datatracker.ietf.org/doc/html/rfc7049
+  - Jackson CBOR support: https://github.com/FasterXML/jackson-dataformats-binary/tree/2.17/cbor
+  - Other CBOR support: https://github.com/peteroupc/CBOR-Java
+- COSE spec: https://datatracker.ietf.org/doc/html/rfc8152
+  - Official "COSE Working Group" implementation: https://github.com/cose-wg/COSE-JAVA
