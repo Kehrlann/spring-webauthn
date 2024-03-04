@@ -1,8 +1,10 @@
 package wf.garnier.webauthn.models;
 
+import java.io.Serializable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
-public class UserAuthenticationToken extends AbstractAuthenticationToken {
+public class UserAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
 
 	private final User user;
 
