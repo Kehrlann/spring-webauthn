@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Base64;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webauthn4j.WebAuthnManager;
 import com.webauthn4j.authenticator.AuthenticatorImpl;
@@ -14,10 +17,12 @@ import com.webauthn4j.data.AuthenticationParameters;
 import com.webauthn4j.data.AuthenticationRequest;
 import com.webauthn4j.data.RegistrationParameters;
 import com.webauthn4j.data.RegistrationRequest;
+import com.webauthn4j.data.attestation.statement.NoneAttestationStatement;
 import com.webauthn4j.data.client.Origin;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.validator.exception.ValidationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import wf.garnier.webauthn.models.webauthn.CredentialsRegistration;
 import wf.garnier.webauthn.models.webauthn.CredentialsVerification;
@@ -39,6 +44,10 @@ class OfflineTests {
 
 	private final String authenticationChallenge = "faf484f2-1672-4a82-b781-319855069885";
 
+	public OfflineTests() {
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}
+
 	@Test
 	void onlyAttestation() throws IOException {
 		var registration = objectMapper.readValue(registrationFile, CredentialsRegistration.class);
@@ -53,10 +62,10 @@ class OfflineTests {
 		var converter = new AttestationObjectConverter(new ObjectConverter());
 		var hydrated = converter.convert(attestationBytes);
 		var authenticator = new AuthenticatorImpl(hydrated.getAuthenticatorData().getAttestedCredentialData(),
-				hydrated.getAttestationStatement(), hydrated.getAuthenticatorData().getSignCount());
+				null, hydrated.getAuthenticatorData().getSignCount());
 
-		var authenticationRequest = new AuthenticationRequest(authentication.id().getBytes(),
-				authenticatorData, authClientDataJsonBytes, signautreBytes);
+		var authenticationRequest = new AuthenticationRequest(authentication.id().getBytes(), authenticatorData,
+				authClientDataJsonBytes, signautreBytes);
 
 		//@formatter:off
 		assertThatNoException()
@@ -91,9 +100,8 @@ class OfflineTests {
 		var registrationData = webAuthnManager.validate(registrationRequest, registrationParameters);
 		var authenticator = new AuthenticatorImpl(
 				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-				registrationData.getAttestationObject().getAttestationStatement(),
-				registrationData.getAttestationObject().getAuthenticatorData().getSignCount()
-		);
+				null,
+				registrationData.getAttestationObject().getAuthenticatorData().getSignCount());
 
 		// STEP 2: verify!
 		var authentication = objectMapper.readValue(authenticationFile, CredentialsVerification.class);
@@ -101,8 +109,8 @@ class OfflineTests {
 		var signature = Base64.getUrlDecoder().decode(authentication.response().signature());
 		var authenticatorData = Base64.getUrlDecoder().decode(authentication.response().authenticatorData());
 
-		var authenticationRequest = new AuthenticationRequest(authentication.id().getBytes(),
-				authenticatorData, authClientDataJsonBytes, signature);
+		var authenticationRequest = new AuthenticationRequest(authentication.id().getBytes(), authenticatorData,
+				authClientDataJsonBytes, signature);
 
 		//@formatter:off
 		assertThatNoException()
