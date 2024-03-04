@@ -5,22 +5,22 @@
     <title>Useful App</title>
 </head>
 <body>
+
 <h1>Useful App</h1>
 <div th:if="${alert != null}" th:text="${alert}"></div>
 <p>You are not logged in</p>
-<ul>
-    <li>
-        <form method="POST" action="/login-mail">
-            <label for="email">Login with email:</label>
-            <input type="text" name="email" id="email" placeholder="user@example.com"/>
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <button type="submit">Log In</button>
-        </form>
-    </li>
-    <li>
-        <button id="login-webauthn">Login with Passkey</button>
-    </li>
-</ul>
+
+<h2>Login with Email</h2>
+<form method="POST" action="/login-mail">
+    <label for="email">Login with email:</label>
+    <input type="text" name="email" id="email" placeholder="user@example.com"/>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit">Log In</button>
+</form>
+
+<h2>Login with Passkeys</h2>
+<button id="login-webauthn">Login with Passkey</button>
+
 <h2>No account yet?</h2>
 <a href="/user/register">Sign up</a>
 
