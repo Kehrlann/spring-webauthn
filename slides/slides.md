@@ -206,6 +206,12 @@ layout: center
 
 <img src="/lets-code.gif" style="height: 400px"/>
 
+
+---
+layout: image
+image: /fido-attestation-structures.svg
+---
+
 ---
 
 # References
