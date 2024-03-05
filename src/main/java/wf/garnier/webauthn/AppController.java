@@ -31,7 +31,6 @@ class AppController {
 		var authenticators = authenticatorRepository.findUserAuthenticatorByUser(user);
 		model.addAttribute("username", user.getUsername());
 		model.addAttribute("email", user.getEmail());
-		model.addAttribute("challenge", UUID.randomUUID().toString());
 		model.addAttribute("authenticators", authenticators);
 
 		return "account-page";

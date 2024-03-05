@@ -32,14 +32,11 @@ class WebAuthnController {
 	}
 
 	@PostMapping("/passkey/register")
-	public String register(@RequestBody CredentialsRegistration credentials,
-			@SessionAttribute("challenge") String challenge, @AuthenticationPrincipal User user,
-			SessionStatus sessionStatus, RedirectAttributes redirectAttributes) {
+	public String register(@RequestBody CredentialsRegistration credentials, @AuthenticationPrincipal User user,
+			RedirectAttributes redirectAttributes) {
 		authenticatorService.saveCredentials(credentials, user);
 
-		sessionStatus.setComplete();
-
-		// TODO: this is not used because we use fetch :|
+		// TODO: this is not used because we use fetch and we get a double-call on /account :|
 		redirectAttributes.addFlashAttribute("alert", "You have registered a new passkey!");
 		return "redirect:/account";
 	}

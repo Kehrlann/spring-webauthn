@@ -34,7 +34,7 @@
     // TODO: note, these keys should be generated at sign-in time, not page build time.
     const publicKeyCredentialCreationOptions = {
         challenge: Uint8Array.from(
-            [[${challenge}]], c => c.charCodeAt(0)),
+            "this-should-be-a-random-challenge-from-the-server", c => c.charCodeAt(0)),
         rp: {
             name: "WebAuthN By Kehrlann",
             // TODO: clarify
