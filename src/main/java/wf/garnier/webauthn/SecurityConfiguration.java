@@ -3,8 +3,10 @@ package wf.garnier.webauthn;
 import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.CsrfDsl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
@@ -26,7 +28,7 @@ class SecurityConfiguration {
 			authorize.anyRequest().authenticated();
 		})
 			.addFilter(new DefaultLogoutPageGeneratingFilter())
-			.csrf(csrf -> csrf.ignoringRequestMatchers("/logout"))
+			.csrf(CsrfConfigurer::disable)
 			.logout(logout -> logout.logoutSuccessUrl("/"))
 			.exceptionHandling(exception -> exception.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")))
 			.build();

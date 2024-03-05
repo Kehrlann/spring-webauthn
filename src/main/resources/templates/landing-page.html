@@ -14,7 +14,6 @@
 <form method="POST" action="/login-mail">
     <label for="email">Login with email:</label>
     <input type="text" name="email" id="email" placeholder="user@example.com"/>
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
     <button type="submit">Log In</button>
 </form>
 
@@ -42,7 +41,6 @@
                 body: JSON.stringify(credentialsResponse),
                 credentials: "same-origin",
                 headers: {
-                    [[${_csrf.headerName}]]: [[${_csrf.token}]],
                     "Content-Type": "application/json;charset=utf-8"
                 },
                 redirect: "follow"
