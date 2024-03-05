@@ -5,6 +5,8 @@ public record CredentialsRegistration(String name, AuthenticatorCredentials cred
 	public record AuthenticatorCredentials(String id, Response response) {
 	}
 
-	public record Response(String attestationObject, String clientDataJSON) {
+	public record Response(String clientDataJSON, String attestationObject) {
+
 	}
+
 }

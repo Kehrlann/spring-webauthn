@@ -1,15 +1,11 @@
 package wf.garnier.webauthn.login.webauthn;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wf.garnier.webauthn.login.LoginService;
 import wf.garnier.webauthn.models.User;
@@ -30,20 +26,12 @@ class WebAuthnController {
 	}
 
 	@PostMapping("/passkey/register")
-	public String register(@RequestBody CredentialsRegistration credentials, @AuthenticationPrincipal User user,
-			RedirectAttributes redirectAttributes) {
-		authenticatorService.saveCredentials(credentials, user);
-		redirectAttributes.addFlashAttribute("alert", "You have registered a new passkey!");
+	public String register(@RequestBody CredentialsRegistration credentials) {
 		return "redirect:/account";
 	}
 
 	@PostMapping("/passkey/login")
-	public String login(@RequestBody CredentialsVerification verification, SessionStatus sessionStatus,
-			@SessionAttribute("challenge") String challenge, HttpServletRequest request, HttpServletResponse response) {
-		var user = authenticatorService.authenticate(verification, challenge);
-		loginService.login(user);
-
-		sessionStatus.setComplete();
+	public String authenticate(@RequestBody CredentialsVerification credentials) {
 		return "redirect:/account";
 	}
 

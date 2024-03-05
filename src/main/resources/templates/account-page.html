@@ -33,7 +33,7 @@
         <br>
         <h3>Register new passkey</h3>
         <input type="text" id="passkey-name"/>
-        <button id="register-webauthn">Register</button>
+        <button id="add-passkey">Register</button>
 
         <br>
         <h3>Logout</h3>
@@ -41,70 +41,22 @@
     </div>
 </div>
 
-</body>
 <script th:inline="javascript">
-    async function registerPasskey() {
-        // Note: these options, specifically the challenge, should be generated at sign-in time, not page build time.
-        const publicKeyCredentialCreationOptions = {
-            challenge: Uint8Array.from(
-                "this-should-be-a-random-challenge-from-the-server", c => c.charCodeAt(0)),
-            rp: {
-                name: "WebAuthN By Kehrlann",
-            },
-            user: {
-                id: Uint8Array.from(
-                    [[${email}]], c => c.charCodeAt(0)),
-                displayName: [[${username}]],
-                name: [[${username}]]
-            },
-            pubKeyCredParams: [{alg: -7, type: "public-key"}],
-            timeout: 60000,
-            attestation: "direct",
-            authenticatorSelection: {
-                requireResidentKey: false,
-                userVerification: "preferred",
-                // Cross-platform: Yubikey etc
-                // Platform: TouchID, Windows Hello, etc
-                // authenticatorAttachment: "cross-platform",
-            },
-        };
-        const passkeyField = document.getElementById("passkey-name")
-        const passkeyName = passkeyField.value
-        passkeyField.value = ""
-        // TODO: if name missing, alert & abort
-
-        const credentials = await navigator.credentials.create({
-            publicKey: publicKeyCredentialCreationOptions
-        });
-
-        fetch("/passkey/register",
-            {
-                method: "POST",
-                body: JSON.stringify({name: passkeyName, credentials: credentials}),
-                credentials: "same-origin",
-                headers: {
-                    "Content-Type": "application/json;charset=utf-8"
-                },
-                redirect: "follow"
-            })
-            // Note: this is a hack, we should be using a form instead orr a REST response with a `Link: header`
-            // Fetch downloads the redirect page, in the "then" we update the page and trigger a second download.
-            // We lose the Spring Redirect Attributes during the first load, by the fetch, and so the banner does
-            // not show up.
-            .then(r => document.location.href = r.url)
-            .catch(err => console.error(err))
-            .finally(() => console.log("yep, done"));
+    function registerPasskey() {
+        const name = document.getElementById("passkey-name").value
+        alert(`you clicked on Register Passkey, with name: [${name}]`)
     }
 
-
-    document.getElementById("register-webauthn").addEventListener("click", async () => {
-        await registerPasskey()
+    document.getElementById("add-passkey").addEventListener("click", e => {
+        registerPasskey()
     })
 
-    document.getElementById("passkey-name").addEventListener("keypress", async e => {
-        if (e.key === 'Enter') {
-            await registerPasskey()
+    document.getElementById("passkey-name").addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+            registerPasskey()
         }
     })
 </script>
+
+</body>
 </html>

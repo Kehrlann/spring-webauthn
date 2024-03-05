@@ -22,7 +22,7 @@ class SecurityConfiguration {
 			authorize.requestMatchers("/user").permitAll();
 			authorize.requestMatchers("/user/register").permitAll();
 			authorize.requestMatchers("/passkey/login").permitAll();
-			authorize.requestMatchers("/login-mail").permitAll(); // TODO: consistent
+			authorize.requestMatchers("/login-mail").permitAll();
 			authorize.requestMatchers("/style.css").permitAll();
 			authorize.requestMatchers("/favicon.ico").permitAll();
 			authorize.anyRequest().authenticated();
