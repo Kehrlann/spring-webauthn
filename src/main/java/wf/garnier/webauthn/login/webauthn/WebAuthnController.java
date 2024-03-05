@@ -4,9 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import wf.garnier.webauthn.login.LoginService;
 import wf.garnier.webauthn.models.User;
-import wf.garnier.webauthn.models.UserAuthenticationToken;
 import wf.garnier.webauthn.models.webauthn.AuthenticatorService;
 import wf.garnier.webauthn.models.webauthn.CredentialsRegistration;
 import wf.garnier.webauthn.models.webauthn.CredentialsVerification;
@@ -25,11 +22,14 @@ class WebAuthnController {
 
 	private final AuthenticatorService authenticatorService;
 
-	private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+	private final LoginService loginService;
 
-	public WebAuthnController(AuthenticatorService authenticatorService) {
+
+
+	public WebAuthnController(AuthenticatorService authenticatorService, LoginService loginService) {
 		this.authenticatorService = authenticatorService;
-	}
+        this.loginService = loginService;
+    }
 
 	@PostMapping("/passkey/register")
 	public String register(@RequestBody CredentialsRegistration credentials, @AuthenticationPrincipal User user,
@@ -46,11 +46,7 @@ class WebAuthnController {
 			@SessionAttribute("challenge") String challenge, HttpServletRequest request, HttpServletResponse response) {
 		// TODO: this could be in a service layer?
 		var user = authenticatorService.authenticate(verification, challenge);
-		var auth = new UserAuthenticationToken(user);
-		var newContext = SecurityContextHolder.createEmptyContext();
-		newContext.setAuthentication(auth);
-		SecurityContextHolder.setContext(newContext);
-		securityContextRepository.saveContext(newContext, request, response);
+		loginService.login(user);
 
 		sessionStatus.setComplete();
 		return "redirect:/account";

@@ -5,9 +5,6 @@ import java.util.UUID;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
+import wf.garnier.webauthn.login.LoginService;
 import wf.garnier.webauthn.models.LoginCode;
 import wf.garnier.webauthn.models.LoginCodeRepository;
-import wf.garnier.webauthn.models.UserAuthenticationToken;
 import wf.garnier.webauthn.models.UserRepository;
 
 @Controller
@@ -29,14 +26,15 @@ class EmailLoginController {
 
 	private final MacOsMailNotifier mailNotifier;
 
-	private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+	private final LoginService loginService;
 
 	public EmailLoginController(UserRepository userRepository, LoginCodeRepository loginCodeRepository,
-			MacOsMailNotifier mailNotifier) {
+                                MacOsMailNotifier mailNotifier, LoginService loginService) {
 		this.userRepository = userRepository;
 		this.loginCodeRepository = loginCodeRepository;
 		this.mailNotifier = mailNotifier;
-	}
+        this.loginService = loginService;
+    }
 
 	@PostMapping("/login-mail")
 	public String requestLoginEmail(@RequestParam String email, RedirectAttributes redirectAttributes,
@@ -67,13 +65,7 @@ class EmailLoginController {
 		var loginCode = loginCodeRepository.findById(UUID.fromString(code));
 		if (loginCode.isPresent()) {
 			var user = loginCode.get().getUser();
-			var auth = new UserAuthenticationToken(user);
-
-			var newContext = SecurityContextHolder.createEmptyContext();
-			newContext.setAuthentication(auth);
-			SecurityContextHolder.setContext(newContext);
-			securityContextRepository.saveContext(newContext, request, response);
-
+			loginService.login(user);
 			loginCodeRepository.delete(loginCode.get());
 
 			return "redirect:/account";
