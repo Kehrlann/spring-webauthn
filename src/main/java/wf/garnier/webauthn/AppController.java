@@ -11,7 +11,6 @@ import wf.garnier.webauthn.models.User;
 import wf.garnier.webauthn.models.webauthn.UserAuthenticatorRepository;
 
 @Controller
-@SessionAttributes("challenge")
 class AppController {
 
 	private final UserAuthenticatorRepository authenticatorRepository;
@@ -22,7 +21,6 @@ class AppController {
 
 	@GetMapping
 	public String landingPage(Model model) {
-		model.addAttribute("challenge", UUID.randomUUID().toString());
 		return "landing-page";
 	}
 

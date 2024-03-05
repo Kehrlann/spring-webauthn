@@ -24,7 +24,7 @@
         <br>
         <h3>Login with Passkey</h3>
         <p>
-            <button id="login-webauthn">Login with Passkey</button>
+            <button id="login-passkey">Login with Passkey</button>
         </p>
 
         <br>
@@ -35,32 +35,11 @@
     </div>
 </div>
 
-</body>
 <script th:inline="javascript">
-    const credentialsRequestOptions = {
-        publicKey: {
-            challenge: Uint8Array.from([[${challenge}]], c => c.charCodeAt(0)),
-        }
-    };
-
-    document.getElementById("login-webauthn").addEventListener("click", async () => {
-        const credentialsResponse = await navigator.credentials.get(credentialsRequestOptions);
-        fetch("/passkey/login",
-            {
-                method: "POST",
-                body: JSON.stringify(credentialsResponse),
-                credentials: "same-origin",
-                headers: {
-                    "Content-Type": "application/json;charset=utf-8"
-                },
-                redirect: "follow"
-            })
-            // Note: this is hacky, see account-page
-            .then(r => window.location.href = r.url)
-            .catch(err => console.error(err))
-            .finally(() => console.log("yep, done"));
-        console.log(credentialsResponse);
-        console.log(JSON.stringify(credentialsResponse));
-    });
+    document.getElementById("login-passkey").addEventListener("click", e => {
+        alert("You clicked on [Login with Passkey]")
+    })
 </script>
+
+</body>
 </html>
