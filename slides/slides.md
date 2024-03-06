@@ -59,38 +59,20 @@ layout: center
 # What is this **WebAuthN** thing?
 
 ---
-layout: two-cols-header
+class: smaller
 ---
 
-# **FIDO2 is ...**
+# Glossary
 
-::left::
-
-## 🌍📄 WebAuthN
-
-JavaScript in your browser
-
-(W3C)
-
-::right::
-
-## 💻🔑 CTAP
-
-How your browsers or OS talks to hardware authenticators
-
-(FIDO alliance)
-
----
-
-# What about **Passkeys**?
-
-<br>
-
-> Passkeys are **discoverable** WebAuthN credentials
->
-> <br>
->
-> -- *https://passkeys.io/*
+- 🌍 **WebAuthN**
+    - [W3C spec](https://www.w3.org/TR/webauthn-3/) -> Javascript in your browser
+- 📱 **Authenticator**
+    - _A cryptographic entity, hardware or software_ -> thing to authenticate with
+- 🔑 **Passkey**
+    - A _discoverable_ WebAuthN authenticator
+- 🐶 **FIDO2**
+    - WebAuthN + CTAP
+    - FIDO alliance: Apple, Google, Microsoft
 
 ---
 layout: two-cols-header
@@ -214,14 +196,13 @@ image: /fido-attestation-structures.svg
 
 ---
 
-# References
+## References
 
 <br>
 
-### **https://github.com/Kehrlann/sso-live-coding**
+### https://github.com/Kehrlann/spring-webauthn
 
 <!-- ouch the hack -->
-<!-- https://mobile.devoxx.com/events/dvbe23/talks/2943/details -->
 <div style="float:right; margin-right: 50px; text-align: center;">
   <img src="/qr-code.png" style="margin-bottom: -45px; margin-top: -15px;" >
 </div>
