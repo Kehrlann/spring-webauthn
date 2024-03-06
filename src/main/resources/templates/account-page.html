@@ -3,31 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <title>WebAuthN Demo</title>
+    <link href="/style.css" rel="stylesheet"/>
 </head>
 <body>
-<h1>Account page - <span th:text="${username}"></span></h1>
-<div th:if="${alert != null}" th:text="${alert}"></div>
-<p>Your information:</p>
-<ul>
-    <li>username: <span th:text="${username}"></span></li>
-    <li>email: <span th:text="${email}"></span></li>
-</ul>
-<a href="/logout">logout</a>
-<hr>
-<h2>Existing Passkeys</h2>
-<ul>
-    <li th:each="authenticator: ${authenticators}">
-        <form action="/passkey/delete" method="POST">
-            <span th:text="${authenticator.getCredentialsName()}"></span>
-            <input type="hidden" name="credential-id" th:value="${authenticator.getId()}"/>
-            <button type="submit" class="inline">Delete</button>
-        </form>
-    </li>
-</ul>
-<h2>Register new passkey</h2>
-<label for="passkey-name">Passkey name</label>
-<input type="text" id="passkey-name"/>
-<button id="register-webauthn">Register</button>
+
+<div class="card">
+    <div class="header">
+        <h1>WebAuthN demo</h1>
+    </div>
+    <div class="content">
+        <p>Your account:</p>
+        <ul>
+            <li>username: <span th:text="${username}"></span></li>
+            <li>email: <span th:text="${email}"></span></li>
+        </ul>
+
+        <br>
+        <h3>Existing Passkeys</h3>
+        <ul>
+            <li th:each="authenticator: ${authenticators}">
+                <form action="/passkey/delete" method="POST">
+                    <span th:text="${authenticator.getCredentialsName()}"></span>
+                    <input type="hidden" name="credential-id" th:value="${authenticator.getId()}"/>
+                    <button type="submit" class="button-delete">delete</button>
+                </form>
+            </li>
+        </ul>
+
+        <br>
+        <h3>Register new passkey</h3>
+        <input type="text" id="passkey-name"/>
+        <button id="register-webauthn">Register</button>
+
+        <br>
+        <h3>Logout</h3>
+        <a href="/logout">logout</a>
+    </div>
+</div>
+
 </body>
 <script th:inline="javascript">
     async function registerPasskey() {

@@ -2,16 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>🐶 WAN - Register user</title>
+    <title>WebAuthN Demo</title>
+    <link href="/style.css" rel="stylesheet"/>
 </head>
 <body>
-<h1>Register a new user</h1>
-<form action="/user/register" method="POST">
-    <label for="username">Name:</label><br>
-    <input type="text" name="username" id="username" /><br>
-    <label for="email">Email:</label><br>
-    <input type="text" name="email" id="email" /><br>
-    <button type="submit">Register</button>
-</form>
+<div class="card">
+    <div class="header">
+        <h1>WebAuthN Demo</h1>
+    </div>
+    <div class="content">
+        <h3>Register a new user</h3>
+        <form action="/user/register" method="POST">
+            <label for="username">Name:</label><br>
+            <input type="text" name="username" id="username" />
+            <br>
+            <br>
+            <label for="email">Email:</label><br>
+            <input type="text" name="email" id="email" />
+            <br>
+            <br>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>

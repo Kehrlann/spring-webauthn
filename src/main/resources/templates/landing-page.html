@@ -3,25 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>WebAuthN Demo</title>
+    <link href="/style.css" rel="stylesheet"/>
 </head>
 <body>
 
-<h1>WebAuthN Demo</h1>
-<div th:if="${alert != null}" th:text="${alert}"></div>
-<p>You are not logged in</p>
+<div class="card">
+    <div class="header">
+        <h1>WebAuthN demo</h1>
+    </div>
+    <div class="content">
+        <p>You are not logged in</p>
 
-<h2>Login with Email</h2>
-<form method="POST" action="/login-mail">
-    <label for="email">Login with email:</label>
-    <input type="text" name="email" id="email" placeholder="user@example.com"/>
-    <button type="submit">Log In</button>
-</form>
+        <br>
+        <h3>Login with email</h3>
+        <form method="POST" action="/login-mail">
+            <input type="text" name="email" id="email" placeholder="user@example.com"/>
+            <button type="submit">Log In</button>
+        </form>
 
-<h2>Login with Passkeys</h2>
-<button id="login-webauthn">Login with Passkey</button>
+        <br>
+        <h3>Login with Passkey</h3>
+        <p>
+            <button id="login-webauthn">Login with Passkey</button>
+        </p>
 
-<h2>No account yet?</h2>
-<a href="/user/register">Sign up</a>
+        <br>
+        <h3>No account yet?</h3>
+        <p>
+            <a href="/user/register">Sign up</a>
+        </p>
+    </div>
+</div>
 
 </body>
 <script th:inline="javascript">
