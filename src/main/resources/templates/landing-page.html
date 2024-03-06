@@ -28,8 +28,6 @@
     const credentialsRequestOptions = {
         publicKey: {
             challenge: Uint8Array.from([[${challenge}]], c => c.charCodeAt(0)),
-            // TODO: clarify
-            rpId: "localhost"
         }
     };
 
@@ -45,23 +43,12 @@
                 },
                 redirect: "follow"
             })
-            // TODO: this is a hack, we should be using a form instead
-            // Or a REST response with a Link: header
+            // Note: this is hacky, see account-page
             .then(r => window.location.href = r.url)
             .catch(err => console.error(err))
             .finally(() => console.log("yep, done"));
         console.log(credentialsResponse);
         console.log(JSON.stringify(credentialsResponse));
     });
-    // "allowCredentials": [
-    // {
-    //     "type": "public-key",
-    //     "id": "a_TJPMGXaqyff0ZuEVD3k3bnfiiK049rPnmWSfnNkIFW1vWYaKSgIJpIiuyUChF0Br7MDUxpbKRKVWtGKQv1tA"
-    // }
-    // ],
-    //     "userVerification": "preferred",
-    //     "extensions": {
-    //     "appid": "https://localhost:8443"
-    // }
 </script>
 </html>

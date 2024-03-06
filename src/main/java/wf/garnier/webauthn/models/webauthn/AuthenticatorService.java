@@ -39,10 +39,11 @@ public class AuthenticatorService {
 	}
 
 	public void saveCredentials(CredentialsRegistration registration, User user) {
-		var attestationObject = Base64.getUrlDecoder().decode(registration.response().attestationObject());
+		var attestationObject = Base64.getUrlDecoder()
+			.decode(registration.credentials().response().attestationObject());
 		// TODO: you should absolutely validate the attestation, not trust it blindly!
 
-		var serializedAuthenticator = new UserAuthenticator(registration.id(), user, registration.name(),
+		var serializedAuthenticator = new UserAuthenticator(registration.credentials().id(), user, registration.name(),
 				attestationObject);
 		repository.save(serializedAuthenticator);
 	}

@@ -24,19 +24,15 @@ class WebAuthnController {
 
 	private final LoginService loginService;
 
-
-
 	public WebAuthnController(AuthenticatorService authenticatorService, LoginService loginService) {
 		this.authenticatorService = authenticatorService;
-        this.loginService = loginService;
-    }
+		this.loginService = loginService;
+	}
 
 	@PostMapping("/passkey/register")
 	public String register(@RequestBody CredentialsRegistration credentials, @AuthenticationPrincipal User user,
 			RedirectAttributes redirectAttributes) {
 		authenticatorService.saveCredentials(credentials, user);
-
-		// TODO: this is not used because we use fetch and we get a double-call on /account :|
 		redirectAttributes.addFlashAttribute("alert", "You have registered a new passkey!");
 		return "redirect:/account";
 	}
@@ -44,7 +40,6 @@ class WebAuthnController {
 	@PostMapping("/passkey/login")
 	public String login(@RequestBody CredentialsVerification verification, SessionStatus sessionStatus,
 			@SessionAttribute("challenge") String challenge, HttpServletRequest request, HttpServletResponse response) {
-		// TODO: this could be in a service layer?
 		var user = authenticatorService.authenticate(verification, challenge);
 		loginService.login(user);
 
@@ -58,9 +53,6 @@ class WebAuthnController {
 		System.out.println("DELETING " + credentialId);
 		if (authenticatorService.deleteCredential(user, credentialId)) {
 			redirectAttributes.addFlashAttribute("alert", "Passkey deleted.");
-		}
-		else {
-			// TODO: deleting something that is not yours?
 		}
 		return "redirect:/account";
 	}

@@ -51,7 +51,7 @@ class OfflineTests {
 	@Test
 	void onlyAttestation() throws IOException {
 		var registration = objectMapper.readValue(registrationFile, CredentialsRegistration.class);
-		var attestationBytes = Base64.getUrlDecoder().decode(registration.response().attestationObject());
+		var attestationBytes = Base64.getUrlDecoder().decode(registration.credentials().response().attestationObject());
 
 		// STEP 2: verify!
 		var authentication = objectMapper.readValue(authenticationFile, CredentialsVerification.class);
@@ -89,8 +89,8 @@ class OfflineTests {
 	@Test
 	void fullAuthenticatorImplementation() throws IOException {
 		var registration = objectMapper.readValue(registrationFile, CredentialsRegistration.class);
-		var clientDataJsonBytes = Base64.getUrlDecoder().decode(registration.response().clientDataJSON());
-		var attestationBytes = Base64.getUrlDecoder().decode(registration.response().attestationObject());
+		var clientDataJsonBytes = Base64.getUrlDecoder().decode(registration.credentials() .response().clientDataJSON());
+		var attestationBytes = Base64.getUrlDecoder().decode(registration.credentials().response().attestationObject());
 
 		var registrationServerProperty = getServerProperty(registrationChallenge);
 		var registrationRequest = new RegistrationRequest(attestationBytes, clientDataJsonBytes);

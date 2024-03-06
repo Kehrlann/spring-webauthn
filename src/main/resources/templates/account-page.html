@@ -30,37 +30,31 @@
 <button id="register-webauthn">Register</button>
 </body>
 <script th:inline="javascript">
-    // TODO: note, these keys should be generated at sign-in time, not page build time.
-    const publicKeyCredentialCreationOptions = {
-        challenge: Uint8Array.from(
-            "this-should-be-a-random-challenge-from-the-server", c => c.charCodeAt(0)),
-        rp: {
-            name: "WebAuthN By Kehrlann",
-            // TODO: clarify
-            // id: "webauthn.garnier.wf",
-            id: "localhost"
-        },
-        user: {
-            id: Uint8Array.from(
-                [[${username}]], c => c.charCodeAt(0)), // TODO: a "real" ID
-            displayName: [[${username}]],
-            name: [[${username}]]
-        },
-        pubKeyCredParams: [{alg: -7, type: "public-key"}],
-        // Cross-platform: Yubikey etc
-        // Platform: TouchID, Windows Hello, etc
-        // authenticatorSelection: {
-        //     authenticatorAttachment: "cross-platform",
-        // },
-        timeout: 60000,
-        attestation: "direct",
-        authenticatorSelection: {
-            requireResidentKey: false,
-            userVerification: "preferred"
-        },
-    };
-
-    document.getElementById("register-webauthn").addEventListener("click", async () => {
+    async function registerPasskey() {
+        // Note: these options, specifically the challenge, should be generated at sign-in time, not page build time.
+        const publicKeyCredentialCreationOptions = {
+            challenge: Uint8Array.from(
+                "this-should-be-a-random-challenge-from-the-server", c => c.charCodeAt(0)),
+            rp: {
+                name: "WebAuthN By Kehrlann",
+            },
+            user: {
+                id: Uint8Array.from(
+                    [[${email}]], c => c.charCodeAt(0)),
+                displayName: [[${username}]],
+                name: [[${username}]]
+            },
+            pubKeyCredParams: [{alg: -7, type: "public-key"}],
+            timeout: 60000,
+            attestation: "direct",
+            authenticatorSelection: {
+                requireResidentKey: false,
+                userVerification: "preferred",
+                // Cross-platform: Yubikey etc
+                // Platform: TouchID, Windows Hello, etc
+                // authenticatorAttachment: "cross-platform",
+            },
+        };
         const passkeyField = document.getElementById("passkey-name")
         const passkeyName = passkeyField.value
         passkeyField.value = ""
@@ -69,25 +63,35 @@
         const credentials = await navigator.credentials.create({
             publicKey: publicKeyCredentialCreationOptions
         });
-        // TODO: hack 😱😱😱
-        const parsedResponse = JSON.parse(JSON.stringify(credentials))
+
         fetch("/passkey/register",
             {
                 method: "POST",
-                body: JSON.stringify({response: parsedResponse.response, id: parsedResponse.id, name: passkeyName}),
+                body: JSON.stringify({name: passkeyName, credentials: credentials}),
                 credentials: "same-origin",
                 headers: {
                     "Content-Type": "application/json;charset=utf-8"
                 },
                 redirect: "follow"
             })
-            // TODO: this is a hack, we should be using a form instead
-            // Or a REST response with a Link: header
-            // It loses Redirect Attributes becaues the page is loaded by the fetch, and then by the
-            // navigate
+            // Note: this is a hack, we should be using a form instead orr a REST response with a `Link: header`
+            // Fetch downloads the redirect page, in the "then" we update the page and trigger a second download.
+            // We lose the Spring Redirect Attributes during the first load, by the fetch, and so the banner does
+            // not show up.
             .then(r => document.location.href = r.url)
             .catch(err => console.error(err))
             .finally(() => console.log("yep, done"));
+    }
+
+
+    document.getElementById("register-webauthn").addEventListener("click", async () => {
+        await registerPasskey()
+    })
+
+    document.getElementById("passkey-name").addEventListener("keypress", async e => {
+        if (e.key === 'Enter') {
+            await registerPasskey()
+        }
     })
 </script>
 </html>
