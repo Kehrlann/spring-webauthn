@@ -196,6 +196,18 @@ image: /fido-attestation-structures.svg
 
 ---
 
+# Observations
+
+- 🤯 It's Complicated™
+- 👷 Use a library
+    - (It's _still_ complicated)
+- 🤔 Define your use-case(s)
+- 📚 Read up!
+    - Yubico's site is a gold mine
+- 🍃🔐 Coming Soon™ in Spring Security
+
+---
+
 ## References
 
 <br>
