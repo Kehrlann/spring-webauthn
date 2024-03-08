@@ -1,63 +1,27 @@
 # spring-webauthn
 
-Demo for Spring + WebAuthN
+Simple WebAuthN demo, using basic Spring code. This is intended to showcase how passkey and WebAuthN
+registration and authentication work.
 
+> ⚠️  This is a demo project, and MUST NOT be used as-is in production.
 
-## Dynamics
+Pre-requisites:
+- Java 17+
+- Docker
+- An authenticator (ex: Windows Hello, a Yubikey, a FIDO2-compliant phone authenticator, etc.)
 
-### Account creation
+Run this project:
 
-### Magic-link login
+```bash
+./gradlew bootRun
+```
 
-### WebAuthN key linking
+Then navigate to [http://localhost:8080](http://localhost:8080). First, sign up for an account. You
+may use any e-mail, as no real e-mail will be sent.
 
-### WebAuthN log in
+Then click "log in with e-mail", and check the console of the Spring Boot process. You should see a
+link, click on it. This logs you in.
 
-## Important stuff to mention
-
-- CBOR: Compact Binary Object Representation
-- COSE: COBR Object Signing and Encryption
-- Attestation: verifiable evidence as to the origin of an authenticator and the data it emits
-  - Credential IDs, creds Key Pair, Signature Counter
-- Ceremony: protocol + human interactions (out of band for protocol)
-- Authentication Ceremony: 
-  - Test of user presence or user verification
-  - "Authorization gesture", physical interaction
-- Authenticator types:
-  - Hardware or Software
-  - In the client device (platform authenticators) or outside (roaming authenticator)
-  - Stores key locally or on a server
-- Discoverable keys
-  - Stored on device, per RP-id
-  - Contrary to server-side public key credentials source?
-
-## TODO
-
-- [x] registration
-- [x] "email" log-in
-  - [x] code table
-- [x] Authenticator registration (revocation ?)
-- [x] Authentication
-- [x] persist authenticator
-- [x] name authenticator
-- [ ] Clean up the request to register a new authenticator (what's base64 encoded...)
-- [ ] refresh page when registering an authenticator + flash
-  - /!\ fetch API is very limited for this
-- [ ] remove dead code
-- [x] clean up routes
-- [ ] css styling
-- [ ] code expiry
-- [x] delete authenticator
-
-- [ ] mkcert for auth.localhost.garnier.wf (?)
-- [ ] deploy online (?)
-- [ ] ykman / safari password management
-  - `ykman credentials list`
-
-## Notes
-
-- CBOR spec: https://datatracker.ietf.org/doc/html/rfc7049
-  - Jackson CBOR support: https://github.com/FasterXML/jackson-dataformats-binary/tree/2.17/cbor
-  - Other CBOR support: https://github.com/peteroupc/CBOR-Java
-- COSE spec: https://datatracker.ietf.org/doc/html/rfc8152
-  - Official "COSE Working Group" implementation: https://github.com/cose-wg/COSE-JAVA
+Once logged in, you may add as many Authenticators as you wish with "Register Passkey". Once you
+have at least one authenticator registered, log out, and, on the main page, try clicking "Log in
+with Passkey".
