@@ -24,17 +24,17 @@ class EmailLoginController {
 
 	private final LoginCodeRepository loginCodeRepository;
 
-	private final MacOsMailNotifier mailNotifier;
+	private final MailNotifier mailNotifier;
 
 	private final LoginService loginService;
 
 	public EmailLoginController(UserRepository userRepository, LoginCodeRepository loginCodeRepository,
-                                MacOsMailNotifier mailNotifier, LoginService loginService) {
+			MailNotifier mailNotifier, LoginService loginService) {
 		this.userRepository = userRepository;
 		this.loginCodeRepository = loginCodeRepository;
 		this.mailNotifier = mailNotifier;
-        this.loginService = loginService;
-    }
+		this.loginService = loginService;
+	}
 
 	@PostMapping("/login-mail")
 	public String requestLoginEmail(@RequestParam String email, RedirectAttributes redirectAttributes,
