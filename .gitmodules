@@ -1,0 +1,4 @@
+[submodule "spring-security-upstream"]
+	path = spring-security-upstream
+	url = git@github.com:Kehrlann/spring-security-webauthn.git
+	branch = passkeys
