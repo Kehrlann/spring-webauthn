@@ -25,7 +25,7 @@ public class MacOsMailNotifier implements MailNotifier {
 
 	public static boolean isSupported() {
 		try {
-			var process = Runtime.getRuntime().exec(new String[] { "terminal-notifierx", "-help" });
+			var process = Runtime.getRuntime().exec(new String[] { "terminal-notifier", "-help" });
 			int exitCode = process.onExit().get().exitValue();
 			return exitCode == 0;
 		}
