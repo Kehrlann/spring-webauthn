@@ -15,6 +15,7 @@ java {
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
+    mavenLocal()
 }
 
 dependencies {
@@ -23,6 +24,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("example:webauthn:0.0.1-DGARNIER")
 
     runtimeOnly("org.postgresql:postgresql")
 
