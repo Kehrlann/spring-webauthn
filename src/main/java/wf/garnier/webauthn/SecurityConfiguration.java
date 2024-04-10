@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.WebauthnConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -19,18 +18,16 @@ class SecurityConfiguration {
 		return http.authorizeHttpRequests(authorize -> {
 			authorize.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
 			authorize.requestMatchers("/").permitAll();
-			authorize.requestMatchers("/user").permitAll();
 			authorize.requestMatchers("/user/register").permitAll();
-			authorize.requestMatchers("/passkey/login").permitAll();
-			authorize.requestMatchers("/login-mail").permitAll(); // TODO: consistent
+			authorize.requestMatchers("/landing").permitAll();
+			authorize.requestMatchers("/login-mail").permitAll();
 			authorize.requestMatchers("/style.css").permitAll();
 			authorize.requestMatchers("/favicon.ico").permitAll();
 			authorize.anyRequest().authenticated();
-		}).addFilter(new DefaultLogoutPageGeneratingFilter()).csrf(csrf -> {
-			csrf.ignoringRequestMatchers("/**");
 		})
+			.csrf(Customizer.withDefaults())
+			.formLogin(Customizer.withDefaults()) // TODO: eventually this should go away
 			.logout(logout -> logout.logoutSuccessUrl("/"))
-			.formLogin(Customizer.withDefaults())
 			.with(new WebauthnConfigurer<>(),
 					(passkeys) -> passkeys.rpName("WebAuthN demo")
 						.rpId("localhost")

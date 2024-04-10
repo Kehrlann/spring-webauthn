@@ -13,6 +13,7 @@
     <div class="content">
         <h3>Register a new user</h3>
         <form action="/user/register" method="POST">
+            <input type="hidden" th:name="${_csrf.getParameterName()}" th:value="${_csrf.getToken()}" />
             <label for="username">Name:</label><br>
             <input type="text" name="username" id="username" />
             <br>

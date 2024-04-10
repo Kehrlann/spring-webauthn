@@ -18,4 +18,24 @@ CREATE TABLE IF NOT EXISTS "authenticator"
     user_id            UUID             NOT NULL REFERENCES app_user (id),
     credentials_name   TEXT             NOT NULL,
     attestation_object BYTEA DEFAULT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "credential_record"
+(
+    id                 TEXT PRIMARY KEY NOT NULL,
+    user_entity_id     TEXT             NOT NULL REFERENCES credentials_user_entity (id),
+    label              TEXT             NOT NULL,
+    sign_count         BIGINT           NOT NULL,
+    attestation_object BYTEA            NOT NULL,
+    created            TIMESTAMP,
+    last_used          TIMESTAMP
+
+);
+
+CREATE TABLE IF NOT EXISTS "credentials_user_entity"
+(
+    id           TEXT PRIMARY KEY NOT NULL,
+    username     TEXT             NOT NULL, /* references app_user.username */
+    display_name TEXT             NOT NULL
 )

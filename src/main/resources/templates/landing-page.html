@@ -17,6 +17,7 @@
         <br>
         <h3>Login with email</h3>
         <form method="POST" action="/login-mail">
+            <input type="hidden" th:name="${_csrf.getParameterName()}" th:value="${_csrf.getToken()}" />
             <input type="text" name="email" id="email" placeholder="user@example.com"/>
             <button type="submit">Log In</button>
         </form>
