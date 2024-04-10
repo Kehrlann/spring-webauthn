@@ -61,8 +61,8 @@ class OfflineTests {
 
 		var converter = new AttestationObjectConverter(new ObjectConverter());
 		var hydrated = converter.convert(attestationBytes);
-		var authenticator = new AuthenticatorImpl(hydrated.getAuthenticatorData().getAttestedCredentialData(),
-				null, hydrated.getAuthenticatorData().getSignCount());
+		var authenticator = new AuthenticatorImpl(hydrated.getAuthenticatorData().getAttestedCredentialData(), null,
+				hydrated.getAuthenticatorData().getSignCount());
 
 		var authenticationRequest = new AuthenticationRequest(authentication.id().getBytes(), authenticatorData,
 				authClientDataJsonBytes, signautreBytes);
@@ -89,7 +89,7 @@ class OfflineTests {
 	@Test
 	void fullAuthenticatorImplementation() throws IOException {
 		var registration = objectMapper.readValue(registrationFile, CredentialsRegistration.class);
-		var clientDataJsonBytes = Base64.getUrlDecoder().decode(registration.credentials() .response().clientDataJSON());
+		var clientDataJsonBytes = Base64.getUrlDecoder().decode(registration.credentials().response().clientDataJSON());
 		var attestationBytes = Base64.getUrlDecoder().decode(registration.credentials().response().attestationObject());
 
 		var registrationServerProperty = getServerProperty(registrationChallenge);
@@ -99,8 +99,7 @@ class OfflineTests {
 		// parse-and-validate, throws if wrong
 		var registrationData = webAuthnManager.validate(registrationRequest, registrationParameters);
 		var authenticator = new AuthenticatorImpl(
-				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(),
-				null,
+				registrationData.getAttestationObject().getAuthenticatorData().getAttestedCredentialData(), null,
 				registrationData.getAttestationObject().getAuthenticatorData().getSignCount());
 
 		// STEP 2: verify!
