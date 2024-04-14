@@ -19,7 +19,6 @@ class SecurityConfiguration {
 			authorize.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
 			authorize.requestMatchers("/").permitAll();
 			authorize.requestMatchers("/user/register").permitAll();
-			authorize.requestMatchers("/landing").permitAll();
 			authorize.requestMatchers("/login-mail").permitAll();
 			authorize.requestMatchers("/style.css").permitAll();
 			authorize.requestMatchers("/favicon.ico").permitAll();

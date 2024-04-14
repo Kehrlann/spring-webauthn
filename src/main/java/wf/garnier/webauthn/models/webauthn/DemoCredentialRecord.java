@@ -1,6 +1,7 @@
 package wf.garnier.webauthn.models.webauthn;
 
 import java.time.Instant;
+import java.util.Collections;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -59,6 +60,7 @@ public class DemoCredentialRecord {
 			.label(label)
 			.attestationObject(new Base64Url(attestationObject))
 			.uvInitialized(false)
+			.transports(Collections.emptyList())
 			.build();
 	}
 

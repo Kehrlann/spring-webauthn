@@ -17,7 +17,7 @@
         <br>
         <h3>Login with email</h3>
         <form method="POST" action="/login-mail">
-            <input type="hidden" th:name="${_csrf.getParameterName()}" th:value="${_csrf.getToken()}" />
+            <input type="hidden" th:name="${_csrf.getParameterName()}" th:value="${_csrf.getToken()}"/>
             <input type="text" name="email" id="email" placeholder="user@example.com"/>
             <button type="submit">Log In</button>
         </form>
@@ -38,30 +38,117 @@
 
 </body>
 <script th:inline="javascript">
-    const credentialsRequestOptions = {
-        publicKey: {
-            challenge: Uint8Array.from([[${challenge}]], c => c.charCodeAt(0)),
+    document.addEventListener("DOMContentLoaded", setup);
+    const base64url = {
+        encode: function (buffer) {
+            const base64 = window.btoa(String.fromCharCode(...new Uint8Array(buffer)));
+            return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+        },
+        decode: function (base64url) {
+            const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+            const binStr = window.atob(base64);
+            const bin = new Uint8Array(binStr.length);
+            for (let i = 0; i < binStr.length; i++) {
+                bin[i] = binStr.charCodeAt(i);
+            }
+            return bin.buffer;
         }
-    };
+    }
 
-    document.getElementById("login-webauthn").addEventListener("click", async () => {
-        const credentialsResponse = await navigator.credentials.get(credentialsRequestOptions);
-        fetch("/passkey/login",
-            {
-                method: "POST",
-                body: JSON.stringify(credentialsResponse),
-                credentials: "same-origin",
-                headers: {
-                    "Content-Type": "application/json;charset=utf-8"
+    function setup() {
+
+        // <button>
+        const passkeySignin = document.getElementById('login-webauthn');
+
+        // Start authentication when the user clicks a button
+        passkeySignin.addEventListener('click', async () => {
+
+            const optionsResponse = await fetch('/webauthn/authenticate/options');
+            const options = await optionsResponse.json();
+            // FIXME: Use https://www.w3.org/TR/webauthn-3/#sctn-parseRequestOptionsFromJSON
+            options.challenge = base64url.decode(options.challenge);
+
+            // Invoke the WebAuthn get() method.
+            const cred = await navigator.credentials.get({
+                publicKey: options
+            });
+            const {response, credType} = cred;
+            let userHandle = undefined;
+            if (response.userHandle) {
+                userHandle = base64url.encode(response.userHandle);
+            }
+            const body = {
+                id: cred.id,
+                rawId: base64url.encode(cred.rawId),
+                response: {
+                    authenticatorData: base64url.encode(response.authenticatorData),
+                    clientDataJSON: base64url.encode(response.clientDataJSON),
+                    signature: base64url.encode(response.signature),
+                    userHandle,
                 },
-                redirect: "follow"
-            })
-            // Note: this is hacky, see account-page
-            .then(r => window.location.href = r.url)
-            .catch(err => console.error(err))
-            .finally(() => console.log("yep, done"));
-        console.log(credentialsResponse);
-        console.log(JSON.stringify(credentialsResponse));
-    });
+                credType,
+                clientExtensionResults: cred.getClientExtensionResults(),
+                authenticatorAttachment: cred.authenticatorAttachment,
+            };
+
+            // POST the response to the endpoint that calls
+            const authenticationResponse = await fetch('/login/webauthn',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [[${_csrf.getHeaderName()}]]: [[${_csrf.getToken()}]],
+                    },
+                    body: JSON.stringify(body),
+                }
+            )
+                .then(response => {
+                    if (response.ok) {
+                        return response.json()
+                    } else {
+                        return {'errorUrl': '/?error'}
+                    }
+                });
+
+            // Show UI appropriate for the `verified` status
+            // if (authenticationResponse && authenticationResponse.authenticated) {
+            //     window.location.href = authenticationResponse.redirectUrl;
+            // } else {
+            //     window.location.href = authenticationResponse.errorUrl
+            // }
+            window.location.href = window.location.origin + "/account";
+        });
+    }
+
+
+    <!-- ⬇️ OLD GOES HERE-->
+    // TODO: remove me
+    function old() {
+        const credentialsRequestOptions = {
+            publicKey: {
+                challenge: Uint8Array.from([[${challenge}]], c => c.charCodeAt(0)),
+            }
+        };
+
+        document.getElementById("login-webauthn").addEventListener("click", async () => {
+            const credentialsResponse = await navigator.credentials.get(credentialsRequestOptions);
+            fetch("/passkey/login",
+                {
+                    method: "POST",
+                    body: JSON.stringify(credentialsResponse),
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type": "application/json;charset=utf-8"
+                    },
+                    redirect: "follow"
+                })
+                // Note: this is hacky, see account-page
+                .then(r => window.location.href = r.url)
+                .catch(err => console.error(err))
+                .finally(() => console.log("yep, done"));
+            console.log(credentialsResponse);
+            console.log(JSON.stringify(credentialsResponse));
+        });
+    }
 </script>
 </html>
