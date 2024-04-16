@@ -6,6 +6,8 @@ import com.webauthn4j.WebAuthnManager;
 import com.webauthn4j.authenticator.AuthenticatorImpl;
 import com.webauthn4j.converter.AttestationObjectConverter;
 import com.webauthn4j.converter.util.ObjectConverter;
+import com.webauthn4j.data.RegistrationParameters;
+import com.webauthn4j.data.RegistrationRequest;
 import com.webauthn4j.data.client.Origin;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
@@ -53,6 +55,23 @@ public class AuthenticatorService {
 		var b64Challenge = Base64.getUrlEncoder().encodeToString(challenge.getBytes());
 		var rpId = UriComponentsBuilder.fromHttpUrl(origin).build().getHost();
 		return new ServerProperty(new Origin(origin), rpId, new DefaultChallenge(b64Challenge), null);
+	}
+
+	public void save(User user, CredentialsRegistration credentials, String challenge) {
+		RegistrationParameters registrationParameters = new RegistrationParameters(
+				toServerProperty("http://localhost:8080", challenge), false);
+		var registrationRequest = new RegistrationRequest(
+				Base64.getUrlDecoder().decode(credentials.credentials().response().attestationObject()),
+				Base64.getUrlDecoder().decode(credentials.credentials().response().clientDataJSON()));
+		webAuthnManager.validate(registrationRequest, registrationParameters);
+
+		var userAuthenticator = new UserAuthenticator(
+				credentials.credentials().id(),
+				user,
+				credentials.name(),
+				Base64.getUrlDecoder().decode(credentials.credentials().response().attestationObject())
+		);
+		repository.save(userAuthenticator);
 	}
 
 }
