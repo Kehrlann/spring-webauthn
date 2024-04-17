@@ -54,7 +54,7 @@ Spring + Tanzu <logos-spring-icon />
 <br>
 @Kehrlann <logos-twitter />
 <br>
-<span style="margin-left: -60px;">daniel.garnier-moiroux@broadcom.com 📩️</span>
+<span style="margin-left: -60px;">contact@garnier.wf 📩️</span>
 
 
 
