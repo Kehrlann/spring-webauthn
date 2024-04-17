@@ -13,44 +13,50 @@ colorSchema: "light"
 # Implementing WebAuthN
 
 <br>
-<br>
 
+### Josh Long
 ### Daniel Garnier-Moiroux
 
-Voxxed Zürich, 2024-03-07
+Devoxx France, 2024-04-18
 
 
 ---
-layout: image-right
-image: /vdz.jpg
-class: smaller
+layout: two-cols
+class: two-cols-right smaller
 ---
+
+#### Josh
+### Long
+
+🥑️ Advocate extraordinaire
+
+<br>
+<br>
+
+<logos-spring-icon /> Spring
+<br>
+<logos-twitter /> @starbuxman
+<br>
+📩️ josh@joshlong.com
+
+::right::
 
 #### Daniel
 ### Garnier-Moiroux
+
+Security nerd 🤓️
+
 <br>
 
-Software Engineer
+Spring + Tanzu <logos-spring-icon />
+<br>
+@Kehrlann@hachyderm.io <logos-mastodon-icon />
+<br>
+@Kehrlann <logos-twitter />
+<br>
+<span style="margin-left: -60px;">daniel.garnier-moiroux@broadcom.com 📩️</span>
 
-- <logos-spring-icon /> Broadcom+Tanzu+Spring
-- <logos-mastodon-icon /> @Kehrlann@hachyderm.io
-- <logos-twitter /> @Kehrlann
-- <logos-firefox /> https://garnier.wf/
-- <logos-github-icon /> github.com/Kehrlann/
-- <fluent-emoji-flat-envelope-with-arrow /> daniel.garnier-moiroux@broadcom.com
 
----
-layout: image-left
-image: /vdz-sponsors.png
-class: dark-background
-background-size: contain
----
-
-# Sponsors !
-
-<br />
-
-# 😍🎉🙌
 
 ---
 layout: center
@@ -71,8 +77,8 @@ class: smaller
 - 🔑 **Passkey**
     - A _discoverable_ WebAuthN authenticator
 - 🐶 **FIDO2**
-    - WebAuthN + CTAP
-    - FIDO alliance: Apple, Google, Microsoft
+    - **F**ast **ID**entity **O**nline, by FIDO alliance: Apple, Google, Microsoft
+    - Two specs: WebAuthN + CTAP
 
 ---
 layout: two-cols-header
@@ -207,25 +213,24 @@ image: /fido-attestation-structures.svg
 - 🍃🔐 Coming Soon™ in Spring Security
 
 ---
+class: small-padding
+---
 
-## References
+Demo: <br>**https://github.com/Kehrlann/spring-webauthn**
 
-<br>
-
-### https://github.com/Kehrlann/spring-webauthn
+Spring Security: <br>**https://github.com/rwinch/spring-security-webauthn**
 
 <!-- ouch the hack -->
 <div style="float:right; margin-right: 50px; text-align: center;">
   <img src="/qr-code.png" style="margin-bottom: -45px; margin-top: -15px;" >
 </div>
 
-<br>
-
+Daniel:
 - <logos-mastodon-icon /> @Kehrlann@hachyderm.io
 - <logos-twitter /> @Kehrlann
-- <logos-firefox /> https://garnier.wf/
-- <fluent-emoji-flat-envelope-with-arrow /> daniel.garnier-moiroux@broadcom.com
 
+Josh:
+- <logos-twitter /> @starbuxman
 
 ---
 layout: image

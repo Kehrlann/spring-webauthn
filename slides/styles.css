@@ -49,6 +49,10 @@ html {
   font-size: .9em;
 }
 
+.small-padding {
+  padding-top: .5rem;
+}
+
 
 .two-cols-header {
   grid-template-rows: auto 1fr !important;
@@ -56,4 +60,11 @@ html {
     padding: 10px;
   }
   text-align: center;
+}
+
+.two-cols-right {
+  &.col-right {
+    text-align: right;
+    overflow: visible;
+  }
 }
