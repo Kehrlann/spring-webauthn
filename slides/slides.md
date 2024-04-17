@@ -235,7 +235,7 @@ Josh:
 ---
 layout: image
 hideInToc: true
-image: /meet-me.jpg
+image: /meet-us.jpg
 class: end
 ---
 
